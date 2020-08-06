@@ -1,0 +1,242 @@
+<template>
+  <div>
+    <headNav title="比高篮球体验预约" />
+    <div class="page">
+      <van-form>
+        <van-field
+          v-model="name"
+          required
+          label="学员姓名"
+          maxlength="6"
+          clearable
+          class="input"
+          placeholder="请输入学员姓名"
+          :rules="[{ pattern: /^(?:[\u4e00-\u9fa5]+)(?:●[\u4e00-\u9fa5]+)*$|^[a-zA-Z0-9]+\s?[\.·\-()a-zA-Z]*[a-zA-Z]+$/, message: '姓名格式不正确' }]"
+        />
+        <van-field
+          v-model="telNumber"
+          required
+          clearable
+          label="家长手机号"
+          right-icon="phone-o"
+          class="input"
+          type="tel"
+          maxlength="11"
+          placeholder="请输入家长手机号"
+          :rules="[{ pattern: /^1[3456789]\d{9}$/, message: '手机号格式不正确' }]"
+        />
+        <van-field
+          readonly
+          required
+          label="学员出生日期"
+          right-icon="calender-o"
+          :value="birthday"
+          class="input"
+          placeholder="年-月-日"
+          @click="showBirthday = true"
+        />
+        <van-popup v-model="showBirthday" position="bottom">
+          <van-datetime-picker
+            v-model="currentDate"
+            type="date"
+            title="选择学员出生年月日"
+            :min-date="minDate"
+            :max-date="maxDate"
+            @confirm="chooseBirth"
+            @cancel="showBirthday = false"
+          />
+        </van-popup>
+        <van-field
+          readonly
+          required
+          label="体验日期"
+          right-icon="calender-o"
+          :value="useday"
+          class="input"
+          placeholder="年-月-日"
+          @click="showUseday = true"
+        />
+        <van-calendar v-model="showUseday" @confirm="chooseUseDay"/>
+        <van-field v-model="useWay" readonly required label="体验方式" class="input" placeholder="请选择体验方式" @click="showList(1)"/>
+        <van-field v-model="usePlace" readonly required label="体验地点" class="input" placeholder="请选择体验地点" @click="showList(2)"/>
+        <van-field v-model="schoolYear" readonly required label="在校年级" class="input" placeholder="请选择在校年级" @click="showList(3)"/>
+        <van-popup v-model="showWay" position="bottom">
+          <van-picker
+            show-toolbar
+            :columns="wayList"
+            @confirm="chooseWay"
+            @cancel="showWay = false"
+          />
+        </van-popup>
+      </van-form>
+      <div class="submit">
+        <van-button round block type="info" @click="submitRes">提交</van-button>
+      </div>
+    </div>
+  </div>
+</template>
+
+<script>
+export default {
+  data() {
+    return {
+      name: null,
+      telNumber: null,
+      birthday: null,
+      showBirthday: false,
+      useday: null,
+      showUseday: false,
+      minDate: new Date(2000, 0, 1),
+      maxDate: new Date(new Date().getFullYear() - 3, new Date().getMonth(), new Date().getDate()),
+      currentDate: new Date(),
+      showWay: false,
+      wayList: [],
+      listNum: null,
+      useWay: null,
+      useWayId: null,
+      usePlace: null,
+      schoolYear: null,
+      wayAll: [],
+      placeAll: [],
+      schoolYearAll: [],
+    }
+  },
+  created() {
+    this.getway();
+    this.getPlace();
+    this.getYear();
+  },
+  methods: {
+    async getway() {
+      try {
+        const obj = await this.$api({
+          url: '/courseMudle/findTrialCourseMudle',
+          method: 'get',
+        })
+        this.wayAll = obj;
+      } catch (error) {
+        this.$toast.fail(`${error}`);
+      }
+    },
+    async getPlace() {
+      try {
+        const obj = await this.$api({
+          url: '/beeagleUsers/findAddrList',
+          method: 'get',
+        })
+        this.placeAll = obj;
+      } catch (error) {
+        this.$toast.fail(`${error}`);
+      }
+    },
+    async getYear() {
+      try {
+        const obj = await this.$api({
+          url: '/beeagleUsers/findGradeClassList',
+          method: 'get',
+        })
+        this.schoolYearAll = obj;
+      } catch (error) {
+        this.$toast.fail(`${error}`);
+      }
+    },
+    chooseBirth(date) {
+      this.showBirthday = false;
+      this.birthday = `${date.getFullYear()}-${date.getMonth() + 1 < 10 ? `0` : ``}${date.getMonth() + 1}-${date.getDate()}`;
+    },
+    chooseUseDay(date) {
+      this.showUseday = false;
+      this.useday = `${date.getFullYear()}-${date.getMonth() + 1 < 10 ? `0` : ``}${date.getMonth() + 1}-${date.getDate()}`;
+    },
+    showList(e) {
+      this.listNum = e;
+      this.wayList = [];
+      if (e === 1) {
+        this.wayAll.forEach((e) => {
+          this.wayList.push(e.name)
+        });
+      } else if (e === 2) {
+        this.placeAll.forEach((e) => {
+          this.wayList.push(e.value)
+        });
+      } else {
+        this.schoolYearAll.forEach((e) => {
+          this.wayList.push(e.value)
+        });
+      }
+      this.showWay = true;
+    },
+    chooseWay(e) {
+      if (this.listNum === 1) {
+        this.useWay = e;
+        this.useWayId = this.wayAll[this.wayList.indexOf(e)].id;
+      } else if (this.listNum === 2) {
+        this.usePlace = e;
+      } else {
+        this.schoolYear = e;
+      }
+      this.showWay = false;
+    },
+    submitRes() {
+      const {name, telNumber, birthday, useday, useWayId, usePlace, schoolYear} = this;
+      if (name && telNumber && birthday && useday && useWayId && usePlace && schoolYear) {
+        this.$dialog.confirm({
+          message: '您将提交您填写的信息，请确认',
+          beforeClose: async (action, done) => {
+            if (action === 'confirm') {
+              try {
+                const {message, status} = await this.$api({
+                  url: '/courseTrial/applyCourseTrial',
+                  form: false,
+                  headers: 'json',
+                  data: JSON.stringify({
+                    addr: usePlace,
+                    date: useday,
+                    userid: this.$store.state.wxUserInfo || '48',
+                    courseMudleId: useWayId,
+                    gradleClass: schoolYear,
+                    rname: name,
+                    tel: telNumber,
+                    birthday: birthday,
+                  })
+                })
+                done();
+                if (status === 226) {
+                  this.$toast.fail(`${message}`);
+                } else {
+                  this.$toast.success('提交成功');
+                }
+              } catch (error) {
+                done();
+                this.$toast.fail(`${error}`);
+              }
+            } else {
+              done();
+            }
+          },
+        }).catch(() => {});
+      } else {
+        this.$toast.fail('请完善资料');
+      }
+    },
+  }
+}
+</script>
+
+<style lang="scss" scoped>
+.page {
+  padding: 20px 12px;
+  .title {
+    font-size: 18px;
+    letter-spacing: 2px;
+    margin-bottom: 20px;
+  }
+  .input {
+    margin-bottom: 20px;
+  }
+  .submit {
+    padding: 20px 50px;
+    text-align: center;
+  }
+}
+</style>

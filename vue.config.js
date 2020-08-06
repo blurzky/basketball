@@ -28,11 +28,12 @@ module.exports = {
     }
   },
   devServer: {
-    port: 8080,
+    port: 8888,
     open: true,
     proxy: {
       '/api': {
-        target: 'https://bigao.nhgk.shop:8000',
+        target: 'https://bigao.nhgk.shop',
+        target: 'http://192.168.5.69:8000',
         changeOrigin: true,
         // pathRewrite: {
         //   '^/api': ''

@@ -16,21 +16,9 @@
   @Component
   export default class App extends Vue {
     protected status: boolean = false;
-    protected query: UrlQuery = null;
-    protected getUrlQuery(): UrlQuery {
-      const obj: UrlQuery = {
-        userid: ''
-      };
-      let str: string | string[] = window.location.search;
-      if (str) {
-        str = str.replace('?', '&');
-        str = str.split('&');
-        str.forEach(el => {
-          const [key, value]: string[] = el.split('=');
-          obj[key] = decodeURIComponent(value);
-        });
-      }
-      return obj;
+    protected setQuery(code: string) { 
+      var reg = new RegExp(`(^|\\?|&)${code}=([^&]*)(\\s|&|$)`, "i");
+      return reg.test(location.href) ? unescape(RegExp.$2.replace(/\+/g, " ")) : "";
     }
     get getLoadingStatus(): boolean {
       return this.$store.state.loadingStatus;
@@ -38,20 +26,23 @@
     protected async created(): Promise<any> {
       window.document.title = '比高篮球';
       this.$store.commit('setPhone');
-      this.query = this.getUrlQuery();
-      console.log(location.href)
       if (location.href.includes('code')) {
+        const code = this.setQuery('code');
         try {
-          
+          const obj = await this.$api({
+            url: '/beeagleUsers/findByGoid',
+            data: {
+              code,
+            }
+          });
+          this.$toast.success('登录成功')
+          this.$store.commit('saveUserid', obj.userid);
+          this.status = true;
         } catch (error) {
           this.$toast(`${error || '登录失败，请稍后重试'}`);
         }
-      }
-      // this.query.userid && this.$store.commit('saveUserid', this.query.userid);
-      try {
+      } else {
         this.status = true;
-      } catch (error) {
-        this.$toast(error);
       }
     }
   }

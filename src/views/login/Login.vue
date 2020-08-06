@@ -1,6 +1,5 @@
 <template>
   <div>
-    <custom-nav title="登录" border-color="#dbdbdb" />
     <div class="page">
     </div>
   </div>

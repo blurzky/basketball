@@ -12,7 +12,7 @@ async function api({url, data, form = true, method = 'post',  headers, validateS
       url,
       data,
       method,
-      headers: !headers ? 'Content-Type: application/x-www-form-urlencoded' : 'Content-Type: application/json',
+      headers: !headers ? {'Content-Type': 'application/x-www-form-urlencoded'} : {'Content-Type': 'application/json'},
       transformRequest: form ? [() => {
         let str = '';
         for (let key in data) {
@@ -22,15 +22,16 @@ async function api({url, data, form = true, method = 'post',  headers, validateS
         return str;
       }] : [],
       validateStatus(status: number): boolean {
-        return status === 200;
+        return (status === 200);
       }
     });
-    if ((validateStatus && result.status === 200) || !validateStatus) {
+    if ((validateStatus && !result.status) || !validateStatus) {
       return Promise.resolve(result);
     } else {
       return Promise.reject(result.message || '网络开小差了，请重试~');
     }
   } catch (error) {
+    console.log(error)
     return Promise.reject('网络开小差了，请重试~');
   }
 }
