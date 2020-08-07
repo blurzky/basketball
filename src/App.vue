@@ -1,7 +1,7 @@
 <template>
 <div id="app">
   <transition name="page" mode="out-in">
-    <router-view class="container" v-if="status" />
+    <router-view class="container" v-if="status" v-wechat-title="$route.meta.title" />
   </transition>
   <loading v-show="getLoadingStatus" />
 </div>

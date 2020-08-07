@@ -29,7 +29,7 @@ const routes: Array<RouteConfig> = [
     name: 'test_class',
     meta: {
       index: 0,
-      title: '体验课'
+      title: '报名体验课'
     },
     component: () => import('../views/test_class/TestClass.vue')
   },
@@ -38,7 +38,7 @@ const routes: Array<RouteConfig> = [
     name: 'mall',
     meta: {
       index: 0,
-      title: '买课'
+      title: '比高篮球-购买课程'
     },
     component: () => import('../views/mall/Mall.vue')
   },
@@ -65,7 +65,7 @@ const router = new VueRouter({
   }
 })
 
-router.beforeEach(async (to, from, next) => {
+router.beforeEach((to, from, next) => {
   store.commit('setLoadingStatus', true);
   next();
 });

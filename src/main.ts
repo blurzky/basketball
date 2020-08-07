@@ -7,12 +7,12 @@ import loading from './components/Loading.vue'
 import nav from './components/Nav.vue'
 import { Toast, Dialog, Lazyload } from 'vant'
 import { Component } from 'vue-property-decorator'
+import VueWechatTitle from 'vue-wechat-title'
 
 Component.registerHooks([
   'beforeRouteEnter',
   'beforeRouteLeave'
 ])
-
 // 声明全局方法
 declare module 'vue/types/vue' {
   interface Vue {
@@ -22,9 +22,9 @@ declare module 'vue/types/vue' {
 
 // vant-ui
 Toast.setDefaultOptions({duration: 3000})
-Toast.setDefaultOptions('loading', { forbidClick: true })
+Toast.setDefaultOptions('loading', { forbidClick: true, duration: 0 })
 
-Vue.use(Toast).use(Dialog).use(Lazyload).use(mountApi)
+Vue.use(Toast).use(Dialog).use(Lazyload).use(mountApi).use(VueWechatTitle)
 
 Vue.component('loading', loading)
 Vue.component('custom-nav', nav)

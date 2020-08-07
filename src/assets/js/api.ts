@@ -8,7 +8,7 @@ const bigao: any = axios.create({
 // 接口定义 axios二次封装
 async function api({url, data, form = true, method = 'post',  headers, validateStatus = true}: ApiQuery): Promise<any> {
   try {
-    const {data: result}: Response = await bigao({
+    const {data: result, status}: Response = await bigao({
       url,
       data,
       method,
@@ -22,7 +22,7 @@ async function api({url, data, form = true, method = 'post',  headers, validateS
         return str;
       }] : [],
       validateStatus(status: number): boolean {
-        return (status === 200);
+        return status >= 200 && status <= 400;
       }
     });
     if ((validateStatus && !result.status) || !validateStatus) {
@@ -31,7 +31,6 @@ async function api({url, data, form = true, method = 'post',  headers, validateS
       return Promise.reject(result.message || '网络开小差了，请重试~');
     }
   } catch (error) {
-    console.log(error)
     return Promise.reject('网络开小差了，请重试~');
   }
 }

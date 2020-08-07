@@ -1,6 +1,5 @@
 <template>
   <div>
-    <custom-nav title="购买" border-color="#dbdbdb" />
     <div class="page">
       <van-form>
         <van-field
@@ -231,11 +230,12 @@
       this.currentDate = new Date(year - 3, month, day);
     }
     private chooseBirth(e: any): void {
-      this.birthday = `${e.getFullYear()}-${e.getMonth() < 9 ? `0` : ``}${e.getMonth() + 1}-${e.getDate() < 9 ? `0` : ``}${e.getDate()}`
+      this.birthday = `${e.getFullYear()}-${e.getMonth() < 9 ? `0` : ``}${e.getMonth() + 1}-${e.getDate() < 10 ? `0` : ``}${e.getDate()}`
+      this.getClassList();
       this.showBirth = false;
     }
     private chooseStartDay(e: any): void {
-      this.startDay = `${e.getFullYear()}-${e.getMonth() < 9 ? `0` : ``}${e.getMonth() + 1}-${e.getDate() < 9 ? `0` : ``}${e.getDate()}`
+      this.startDay = `${e.getFullYear()}-${e.getMonth() < 9 ? `0` : ``}${e.getMonth() + 1}-${e.getDate() < 10 ? `0` : ``}${e.getDate()}`
       this.showStartDay = false;
     }
     private showPicks(e: number): void {

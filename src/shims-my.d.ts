@@ -1,3 +1,5 @@
+declare module 'vue-wechat-title'
+
 interface Response {
   obj?: any;
   readonly status: number;
