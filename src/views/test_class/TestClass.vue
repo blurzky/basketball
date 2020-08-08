@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div class="page">
+    <div class="page" v-if="$store.state.userid">
       <van-form>
         <van-field
           v-model="name"
@@ -47,6 +47,17 @@
         <van-field v-model="useWay" readonly required label="体验方式" class="input" placeholder="请选择体验方式" @click="showList(1)"/>
         <van-field v-model="usePlace" readonly required label="体验地点" class="input" placeholder="请选择体验地点" @click="showList(2)"/>
         <van-field v-model="schoolYear" readonly required label="在校年级" class="input" placeholder="请选择在校年级" @click="showList(3)"/>
+        <van-field
+          v-model="classes"
+          readonly
+          required
+          type="textarea"
+          :autosize="true"
+          class="input"
+          label="选课"
+          placeholder="请选课"
+          @click="birthday ? useWay ? getClassList() : $toast('请选择体验方式') : $toast('请选择生日')"
+        />
         <van-popup v-model="showBirth" position="bottom">
           <van-datetime-picker
             v-model="currentDate"
@@ -76,6 +87,14 @@
             @cancel="showWay = false"
           />
         </van-popup>
+        <van-popup v-model="showPickClass" class="check_popup" position="bottom" :style="{ height: '50%' }">
+          <van-checkbox-group v-model="myChooseClass" :max="limitClassNum">
+            <van-checkbox v-for="(item, index) in classesList" :key="index" :name="index" class="check_box">{{item}}</van-checkbox>
+          </van-checkbox-group>
+          <div class="choose_btn">
+            <van-button type="info" round size="small" :style="{width: `80px`}" @click="chooseClass">确认</van-button>
+          </div>
+        </van-popup>
       </van-form>
       <div class="submit">
         <van-button round block type="info" @click="submitRes">提交</van-button>
@@ -86,7 +105,7 @@
 
 <script lang="ts">
   import { Component, Vue } from 'vue-property-decorator'
-  import { Button, DatetimePicker, Form, Field, Popup, Picker } from 'vant'
+  import { Button, DatetimePicker, Form, Field, Popup, Picker, Checkbox, CheckboxGroup } from 'vant'
   @Component({
     components: {
       [Button.name]: Button,
@@ -95,12 +114,15 @@
       [Field.name]: Field,
       [Popup.name]: Popup,
       [Picker.name]: Picker,
+      [Checkbox.name]: Checkbox,
+      [CheckboxGroup.name]: CheckboxGroup,
     }
   })
   export default class TestClass extends Vue {
     private showBirth: boolean = false;
     private showUseDay: boolean = false;
     private showWay: boolean = false;
+    private showPickClass: boolean = false;
     private name: string = null;
     private telNumber: string = null;
     private birthday: string = null;
@@ -108,6 +130,7 @@
     private useWay: string = null;
     private usePlace: string = null;
     private schoolYear: string = null;
+    private classes: string = null;
     private minDate: object = new Date(1980, 0, 1);
     private maxDate: object = null;
     private currentDate: object = null;
@@ -119,6 +142,11 @@
     private wayList: any[] = [];
     private placeList: any[] = [];
     private schoolYearList: any[] = [];
+    private classesList: any[] = [];
+    private classIdList: any[] = [];
+    private myChooseClass: string[] = [];
+    private myChooseClassId: any[] = [];
+    private limitClassNum: number = null;
     protected created(): void {
       if (!this.$store.state.userid) {
         const url = encodeURIComponent(`${location.origin + location.pathname}`);
@@ -200,6 +228,7 @@
     private chooseWay(e: any, index: number) {
       if (this.listNum === 1) {
         this.useWay = e;
+        this.limitClassNum = this.wayList[index].number;
         this.useWayId = this.wayList[index].id;
       } else if (this.listNum === 2) {
         this.usePlace = e;
@@ -208,9 +237,39 @@
       }
       this.showWay = false;
     }
+    private chooseClass(): void {
+      this.showPickClass = false;
+      this.classes = '';
+      this.myChooseClassId = [];
+      this.myChooseClass.forEach((e: any) => {
+        this.classes += this.classesList[e];
+        this.myChooseClassId.push({id: this.classIdList[e]});
+      })
+    }
+    private async getClassList(): Promise<any> {
+      if (!this.classesList.length) {
+        this.$toast.loading({duration: 0});
+        try {
+          const obj = await this.$api({
+            url: `/courseEtc/findRemaCourseByBirthDay?birthday=${this.birthday}`,
+            method: 'get'
+          })
+          obj.forEach((e: any) => {
+            this.classesList.push(`${e.addr} ${e.week} ${e.startTime}-${e.endTime} 组别:${e.groupName} 剩余:${e.allowpeples}\n`);
+            this.classIdList.push(e.id);
+          })
+          this.$toast.clear();
+          this.showPickClass = true;
+        } catch (error) {
+          this.$toast(`${error}`);
+        }
+      } else {
+        this.showPickClass = true;
+      }
+    }
     private submitRes() {
-      const {name, telNumber, birthday, useday, useWayId, usePlace, schoolYear} = this;
-      if (name && telNumber && birthday && useday && useWayId && usePlace && schoolYear) {
+      const {name, telNumber, birthday, useday, useWayId, usePlace, schoolYear, myChooseClassId} = this;
+      if (name && telNumber && birthday && useday && useWayId && usePlace && schoolYear && myChooseClassId) {
         this.$dialog.confirm({
           message: '您将提交您填写的信息，请确认',
           beforeClose: async (action, done) => {
@@ -223,12 +282,13 @@
                   data: JSON.stringify({
                     addr: usePlace,
                     date: useday,
-                    userid: this.$store.state.userid || '66',
+                    userid: this.$store.state.userid || '88',
                     courseMudleId: useWayId,
                     gradleClass: schoolYear,
                     rname: name,
                     tel: telNumber,
                     birthday: birthday,
+                    courseEtc: myChooseClassId
                   })
                 })
                 done();
@@ -259,6 +319,17 @@
     }
     .input {
       margin-bottom: 20px;
+    }
+    .check_popup {
+      padding: 20px;
+      box-sizing: border-box;
+      .check_box {
+        margin-bottom: 20px;
+      }
+      .choose_btn {
+        width: 100%;
+        text-align: center;
+      }
     }
     .submit {
       padding: 20px 50px;

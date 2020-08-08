@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div class="page">
+    <div class="page" v-if="$store.state.userid">
       <van-form>
         <van-field
           v-model="name"
@@ -80,7 +80,7 @@
           class="input"
           label="选课"
           placeholder="请选课"
-          @click="birthday ? getClassList() : $toast('请选择生日')"
+          @click="birthday ? goods ? getClassList() : $toast('请选择产品') : $toast('请选择生日')"
         />
         <van-field
           v-model="notice"
@@ -125,7 +125,7 @@
           @cancel="showPicker === false"
         />
       </van-popup>
-      <van-popup v-model="showPickClass" class="check_popup" position="bottom" :style="{ height: '35%' }">
+      <van-popup v-model="showPickClass" class="check_popup" position="bottom" :style="{ height: '50%' }">
         <van-checkbox-group v-model="myChooseClass" :max="limitClassNum">
           <van-checkbox v-for="(item, index) in classesList" :key="index" :name="index" class="check_box">{{item}}</van-checkbox>
         </van-checkbox-group>
@@ -230,12 +230,11 @@
       this.currentDate = new Date(year - 3, month, day);
     }
     private chooseBirth(e: any): void {
-      this.birthday = `${e.getFullYear()}-${e.getMonth() < 9 ? `0` : ``}${e.getMonth() + 1}-${e.getDate() < 10 ? `0` : ``}${e.getDate()}`
-      this.getClassList();
+      this.birthday = `${e.getFullYear()}-${e.getMonth() < 9 ? `0` : ``}${e.getMonth() + 1}-${e.getDate() < 10 ? `0` : ``}${e.getDate()}`;
       this.showBirth = false;
     }
     private chooseStartDay(e: any): void {
-      this.startDay = `${e.getFullYear()}-${e.getMonth() < 9 ? `0` : ``}${e.getMonth() + 1}-${e.getDate() < 10 ? `0` : ``}${e.getDate()}`
+      this.startDay = `${e.getFullYear()}-${e.getMonth() < 9 ? `0` : ``}${e.getMonth() + 1}-${e.getDate() < 10 ? `0` : ``}${e.getDate()}`;
       this.showStartDay = false;
     }
     private showPicks(e: number): void {
