@@ -1,6 +1,7 @@
 <template>
   <div>
-    <div class="page" v-if="$store.state.userid">
+    <img src="./icon/bg.jpg" class="showcard"/>
+    <div class="page" v-if="!$store.state.userid">
       <van-form>
         <van-field
           v-model="name"
@@ -282,7 +283,7 @@
                   data: JSON.stringify({
                     addr: usePlace,
                     date: useday,
-                    userid: this.$store.state.userid || '88',
+                    userid: this.$store.state.userid,
                     courseMudleId: useWayId,
                     gradleClass: schoolYear,
                     rname: name,
@@ -310,6 +311,11 @@
 </script>
 
 <style lang="scss" scoped>
+  .showcard {
+    width: 100%;
+    height: 250px;
+    object-fit: cover;
+  }
   .page {
     padding: 20px 12px;
     .title {
