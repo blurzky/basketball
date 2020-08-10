@@ -1,6 +1,7 @@
 import Vue from 'vue'
 import store from '@/store'
 import {api} from './api'
+import wx from 'weixin-js-sdk'
 
 interface Ck {
   (bridge: any): void;
@@ -52,8 +53,28 @@ function registerHandler(name: string, ck: (e?: any, ...rest: any[]) => void): v
     bridge.registerHandler(name, ck);
   })
 }
+// 微信分享接口
+function wxShare({title, desc, link, imgUrl}: any) {
+  wx.checkJsApi({
+    jsApiList: ['updateTimelineShareData', 'updateAppMessageShareData'],
+    success: (res: any) => {
+      wx.updateTimelineShareData({
+        title,
+        link,
+        imgUrl
+      });
+      wx.updateAppMessageShareData({
+        title,
+        desc,
+        link,
+        imgUrl
+      });
+    }
+  });
+}
 
 export default function() {
+  Vue.prototype.$wxShare = wxShare;
   Vue.prototype.$callHandler = callHandler;
   Vue.prototype.$registerHandler = registerHandler;
 }

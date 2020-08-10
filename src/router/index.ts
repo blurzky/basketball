@@ -25,6 +25,15 @@ const routes: Array<RouteConfig> = [
     component: () => import('../views/my_page/Mypage.vue')
   },
   {
+    path: '/comment',
+    name: 'Comment',
+    meta: {
+      index: 0,
+      title: '课后总结与评语'
+    },
+    component: () => import('../views/my_page/comment/Comment.vue')
+  },
+  {
     path: '/test_class',
     name: 'test_class',
     meta: {

@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div class="page" v-if="$store.state.userid">
+    <div v-if="$store.state.userid" class="page">
       <van-form>
         <van-field
           v-model="name"

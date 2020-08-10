@@ -50,20 +50,12 @@
     protected backIcon?: any = require('../assets/img/dark_arrow.png');
     protected goBack(): void {
       const index = this.$route.meta.index;
-      if (index) {
-        if (this.push) {
-          this.$router.push(this.push);
-        } else if (this.replace) {
-          this.$router.replace(this.replace);
-        } else {
-          this.$router.go(-1);
-        }
+      if (this.push) {
+        this.$router.push(this.push);
+      } else if (this.replace) {
+        this.$router.replace(this.replace);
       } else {
-        if (this.$store.state.phone === 1) {
-          Android.goBack();
-        } else {
-          window.open('https://wx.tanjie.wang/goBack', '_self');
-        }
+        this.$router.go(-1);
       }
     }
     get getDefaultColor(): string {

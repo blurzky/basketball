@@ -1,5 +1,5 @@
 declare module 'vue-wechat-title'
-
+declare module 'weixin-js-sdk'
 interface Response {
   obj?: any;
   readonly status: number;
@@ -16,32 +16,7 @@ interface ApiQuery {
   validateStatus?: boolean;
 }
 
-declare namespace OSS {
-  interface ActualQuery {
-    accessKeyId: string;
-    accessKeySecret: string;
-    securityToken: string;
-  }
-  interface Query {
-    accessKeyId: string;
-    accessKeySecret: string;
-    stsToken: string;
-    secure: boolean;
-    endpoint: string;
-    bucket: string;
-  }
-  class Wrapper {
-    constructor(data: Query);
-    private multipartUpload(fileName: string, file: File): any;
-  }
-}
-
 declare namespace Android {
-  function goBack(): void;
-  function OpenKeFu(): void;
-  function shareShop(): void;
-  function callPhone(phone: string): void;
-  function orderRoute(): void;
 }
 
 declare namespace AMap {

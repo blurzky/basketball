@@ -23,8 +23,15 @@
     get getLoadingStatus(): boolean {
       return this.$store.state.loadingStatus;
     }
+    protected beforeCreate ():void {
+      this.$wxShare({
+        title: '比高篮球',
+        desc: '体验课',
+        link: 'https://bigaowx.nhgk.shop/test_class',
+        imgUrl: './assets/img/title.png'
+      });
+    }
     protected async created(): Promise<any> {
-      window.document.title = '比高篮球';
       this.$store.commit('setPhone');
       if (location.href.includes('code')) {
         const code = this.setQuery('code');

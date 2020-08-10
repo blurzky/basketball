@@ -3,6 +3,7 @@ import App from './App.vue'
 import router from './router'
 import store from './store'
 import {mountApi} from './assets/js/api'
+import tool from './assets/js/util'
 import loading from './components/Loading.vue'
 import nav from './components/Nav.vue'
 import { Toast, Dialog, Lazyload } from 'vant'
@@ -17,6 +18,7 @@ Component.registerHooks([
 declare module 'vue/types/vue' {
   interface Vue {
     $api(obj: ApiQuery): Promise<any>;
+    $wxShare(obj: any): void;
   }
 }
 
@@ -24,7 +26,7 @@ declare module 'vue/types/vue' {
 Toast.setDefaultOptions({duration: 3000})
 Toast.setDefaultOptions('loading', { forbidClick: true, duration: 0 })
 
-Vue.use(Toast).use(Dialog).use(Lazyload).use(mountApi).use(VueWechatTitle)
+Vue.use(Toast).use(Dialog).use(Lazyload).use(mountApi).use(VueWechatTitle).use(tool)
 
 Vue.component('loading', loading)
 Vue.component('custom-nav', nav)

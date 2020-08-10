@@ -1,7 +1,7 @@
 <template>
   <div>
     <img src="./icon/bg.jpg" class="showcard"/>
-    <div class="page" v-if="!$store.state.userid">
+    <div v-if="!$store.state.userid" class="page">
       <van-form>
         <van-field
           v-model="name"
@@ -48,6 +48,8 @@
         <van-field v-model="useWay" readonly required label="体验方式" class="input" placeholder="请选择体验方式" @click="showList(1)"/>
         <van-field v-model="usePlace" readonly required label="体验地点" class="input" placeholder="请选择体验地点" @click="showList(2)"/>
         <van-field v-model="schoolYear" readonly required label="在校年级" class="input" placeholder="请选择在校年级" @click="showList(3)"/>
+        <van-field v-model="payWay" readonly required label="缴费性质" class="input" placeholder="请选择缴费性质" @click="showList(4)"/>
+        <van-field v-model="introUser" readonly label="转介绍顾客" class="input" placeholder="请选择介绍的老顾客" @click="payWay.includes('老客转介绍') ? getIntroUser() : $toast('非老客转介绍')"/>
         <van-field
           v-model="classes"
           readonly
@@ -131,6 +133,8 @@
     private useWay: string = null;
     private usePlace: string = null;
     private schoolYear: string = null;
+    private payWay: string = null;
+    private introUser: string = null;
     private classes: string = null;
     private minDate: object = new Date(1980, 0, 1);
     private maxDate: object = null;
@@ -139,20 +143,24 @@
     private currentUseDate: object = new Date();
     private listNum: number = null;
     private useWayId: string = null;
+    private payWayId: string = null;
+    private introUserId: string = null;
     private columns: any[] = [];
     private wayList: any[] = [];
     private placeList: any[] = [];
     private schoolYearList: any[] = [];
+    private payWayList: any[] = [];
+    private introUserList: any[] = [];
     private classesList: any[] = [];
     private classIdList: any[] = [];
     private myChooseClass: string[] = [];
     private myChooseClassId: any[] = [];
     private limitClassNum: number = null;
     protected created(): void {
-      if (!this.$store.state.userid) {
-        const url = encodeURIComponent(`${location.origin + location.pathname}`);
-        window.location.href = `https://open.weixin.qq.com/connect/oauth2/authorize?appid=wxf6b5696049ee6487&redirect_uri=${url}&response_type=code&scope=snsapi_userinfo#wechat_redirect`;
-      }
+      // if (!this.$store.state.userid) {
+      //   const url = encodeURIComponent(`${location.origin + location.pathname}`);
+      //   window.location.href = `https://open.weixin.qq.com/connect/oauth2/authorize?appid=wxf6b5696049ee6487&redirect_uri=${url}&response_type=code&scope=snsapi_userinfo#wechat_redirect`;
+      // }
       this.getTime();
       this.getway();
     }
@@ -195,7 +203,38 @@
           method: 'get',
         })
         this.schoolYearList = obj;
+        this.getPay();
+      } catch (error) {
+        this.$toast.fail(`${error}`);
+      }
+    }
+    private async getPay(): Promise<any> {
+      try {
+        const obj = await this.$api({
+          url: '/paymentType/findPaymentType',
+          method: 'get',
+        })
+        this.payWayList = obj;
         this.$store.commit('setLoadingStatus', false);
+      } catch (error) {
+        this.$toast.fail(`${error}`);
+      }
+    }
+    private async getIntroUser(): Promise<any> {
+      this.$toast.loading();
+      try {
+        const obj = await this.$api({
+          url: '/beeagleUsers/findBeaagleUsers',
+          method: 'get',
+        })
+        this.introUserList = obj;
+        this.columns = [];
+        obj.forEach((e: any) => {
+          this.columns.push(`${e.uname}${e.rname ? `【${e.rname}】` : ``}`);
+        })
+        this.listNum = 5;
+        this.$toast.clear();
+        this.showWay = true;
       } catch (error) {
         this.$toast.fail(`${error}`);
       }
@@ -219,9 +258,13 @@
         this.placeList.forEach((e) => {
           this.columns.push(e.value)
         });
-      } else {
+      } else if (e === 3)  {
         this.schoolYearList.forEach((e) => {
           this.columns.push(e.value)
+        });
+      } else if (e === 4) {
+        this.payWayList.forEach((e) => {
+          this.columns.push(e.name)
         });
       }
       this.showWay = true;
@@ -233,8 +276,14 @@
         this.useWayId = this.wayList[index].id;
       } else if (this.listNum === 2) {
         this.usePlace = e;
-      } else {
+      } else if (this.listNum === 3) {
         this.schoolYear = e;
+      } else if (this.listNum === 4) {
+        this.payWay = e;
+        this.payWayId = this.payWayList[index].id;
+      } else {
+        this.introUser = e;
+        this.introUserId = this.introUserList[index].userid;
       }
       this.showWay = false;
     }
@@ -269,8 +318,8 @@
       }
     }
     private submitRes() {
-      const {name, telNumber, birthday, useday, useWayId, usePlace, schoolYear, myChooseClassId} = this;
-      if (name && telNumber && birthday && useday && useWayId && usePlace && schoolYear && myChooseClassId) {
+      const {name, telNumber, birthday, useday, useWayId, usePlace, schoolYear, myChooseClassId, payWayId, introUserId} = this;
+      if (name && telNumber && birthday && useday && useWayId && usePlace && schoolYear && myChooseClassId && payWayId && introUserId) {
         this.$dialog.confirm({
           message: '您将提交您填写的信息，请确认',
           beforeClose: async (action, done) => {
@@ -283,13 +332,15 @@
                   data: JSON.stringify({
                     addr: usePlace,
                     date: useday,
-                    userid: this.$store.state.userid,
+                    userid: this.$store.state.userid || 34,
                     courseMudleId: useWayId,
                     gradleClass: schoolYear,
                     rname: name,
                     tel: telNumber,
                     birthday: birthday,
-                    courseEtc: myChooseClassId
+                    courseEtc: myChooseClassId,
+                    inviteUser: introUserId,
+                    paymenttype: payWayId
                   })
                 })
                 done();
