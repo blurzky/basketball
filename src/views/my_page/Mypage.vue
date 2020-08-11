@@ -56,7 +56,7 @@
     private async getInfo(): Promise<any> {
       try {
         const { beeagleUsers, buySum, eveWeek, remaSum, remaWeek, vipOutTime } = await this.$api({
-          url: `/courseRema/findById?userid=${this.$store.state.userid}`,
+          url: `/courseRema/findById?userid=${this.$store.state.userid || 63}`,
           method: 'get',
         })
         this.formatOverTime(vipOutTime);

@@ -56,7 +56,7 @@ function registerHandler(name: string, ck: (e?: any, ...rest: any[]) => void): v
 // 微信检测Api
 function wxCheck() {
   return new Promise((resolve, reject) => {
-    const data = { url : window.location.href};
+    const data = { url : window.location.href.split('/')[0]};
     api({ url: '/beeagleUsers/wjcode', data }).then(res => {
       const [{
         timestamp,
@@ -68,7 +68,7 @@ function wxCheck() {
         'updateAppMessageShareData'
       ]];
       wx.config({
-        debug: true,
+        debug: false,
         appId: 'wxf6b5696049ee6487',
         timestamp,
         nonceStr,

@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div class="page">
+    <div class="page" v-if="list.length">
       <div class="box" v-for="({ id, coachCommentId, addr, coachComment, coachDisGrade, coachStudyGrade, coach_name, time, etime, medias, userStudyGrade, userDisGrade, userCourseGrade, week}, index) in list" :key="index">
         <div class="wrapper">
           <div class="label">上课时间:</div>

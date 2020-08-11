@@ -28,7 +28,7 @@
         title: '比高篮球',
         desc: '体验课',
         link: 'https://bigaowx.nhgk.shop/test_class',
-        imgUrl: './assets/img/title.png'
+        imgUrl: 'https://beeagle.oss-cn-chengdu.aliyuncs.com/logo.png'
       });
     }
     protected async created(): Promise<any> {
