@@ -1,7 +1,7 @@
 <template>
   <div>
-    <img src="./icon/bg.jpg" v-if="!$store.state.userid" class="showcard"/>
-    <div v-if="!$store.state.userid" class="page">
+    <img src="./icon/bg.jpg" v-if="$store.state.userid" class="showcard"/>
+    <div v-if="$store.state.userid" class="page">
       <van-form>
         <van-field
           v-model="name"
@@ -160,9 +160,11 @@
       if (!this.$store.state.userid) {
         const url = encodeURIComponent(`${location.origin + location.pathname}`);
         window.location.href = `https://open.weixin.qq.com/connect/oauth2/authorize?appid=wxf6b5696049ee6487&redirect_uri=${url}&response_type=code&scope=snsapi_userinfo#wechat_redirect`;
+      } else {
+        this.getTime();
+        this.getway();
       }
-      this.getTime();
-      this.getway();
+      
     }
     private getTime(): void {
       const today = new Date();
@@ -370,7 +372,7 @@
   .showcard {
     width: 100%;
     height: 250px;
-    object-fit: cover;
+    object-fit: contain;
   }
   .page {
     padding: 20px 12px;

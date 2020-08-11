@@ -56,7 +56,7 @@ function registerHandler(name: string, ck: (e?: any, ...rest: any[]) => void): v
 // 微信检测Api
 function wxCheck() {
   return new Promise((resolve, reject) => {
-    const data = { url : window.location.href.split('/')[0]};
+    const data = { url : window.location.href};
     api({ url: '/beeagleUsers/wjcode', data }).then(res => {
       const [{
         timestamp,

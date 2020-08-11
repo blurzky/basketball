@@ -186,9 +186,10 @@
       if (!this.$store.state.userid) {
         const url = encodeURIComponent(`${location.origin + location.pathname}`);
         window.location.href = `https://open.weixin.qq.com/connect/oauth2/authorize?appid=wxf6b5696049ee6487&redirect_uri=${url}&response_type=code&scope=snsapi_userinfo#wechat_redirect`;
+      } else {
+        this.getTime();
+        this.getGoodList();
       }
-      this.getTime();
-      this.getGoodList();
     }
     private async submitRes(): Promise<any> {
       const { name, birthday, sex, startDay, tel, goods, equipment, classes, notice, goodsList, goodsIndex, myChooseClassId} = this;

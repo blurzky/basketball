@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div v-if="userinfo.head" class="page">
+    <div v-if="$store.state.userid" class="page">
       <div class="top">
         <div class="info">
           <img :src="userinfo.head">
@@ -50,8 +50,9 @@
       if (!this.$store.state.userid) {
         const url = encodeURIComponent(`${location.origin + location.pathname}`);
         window.location.href = `https://open.weixin.qq.com/connect/oauth2/authorize?appid=wxf6b5696049ee6487&redirect_uri=${url}&response_type=code&scope=snsapi_userinfo#wechat_redirect`;
+      } else {
+        this.getInfo();
       }
-      this.getInfo();
     }
     private async getInfo(): Promise<any> {
       try {
