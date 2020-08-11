@@ -1,6 +1,6 @@
 <template>
   <div>
-    <img src="./icon/bg.jpg" class="showcard"/>
+    <img src="./icon/bg.jpg" v-if="!$store.state.userid" class="showcard"/>
     <div v-if="!$store.state.userid" class="page">
       <van-form>
         <van-field
