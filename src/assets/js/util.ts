@@ -53,23 +53,64 @@ function registerHandler(name: string, ck: (e?: any, ...rest: any[]) => void): v
     bridge.registerHandler(name, ck);
   })
 }
+// 微信检测Api
+function wxCheck() {
+  return new Promise((resolve, reject) => {
+    const data = { url : window.location.href};
+    api({ url: '/beeagleUsers/wjcode', data }).then(res => {
+      const [{
+        timestamp,
+        nonceStr,
+        signature
+      }, jsApiList]: any[] = [res, [
+        'checkJsApi',
+        'updateTimelineShareData',
+        'updateAppMessageShareData'
+      ]];
+      wx.config({
+        debug: true,
+        appId: 'wxf6b5696049ee6487',
+        timestamp,
+        nonceStr,
+        signature,
+        jsApiList
+      });
+      wx.ready(() => {
+        jsApiList.shift();
+        wx.checkJsApi({
+          jsApiList,
+          success: () => {
+            resolve();
+          },
+          fail: () => {
+            reject();
+          }
+        });
+      });
+      wx.error(() => {
+        reject();
+      });
+    }).catch(() => {
+      reject();
+    })
+  })
+}
 // 微信分享接口
 function wxShare({title, desc, link, imgUrl}: any) {
-  wx.checkJsApi({
-    jsApiList: ['updateTimelineShareData', 'updateAppMessageShareData'],
-    success: (res: any) => {
-      wx.updateTimelineShareData({
-        title,
-        link,
-        imgUrl
-      });
-      wx.updateAppMessageShareData({
-        title,
-        desc,
-        link,
-        imgUrl
-      });
-    }
+  wxCheck().then(() => {
+    wx.updateTimelineShareData({
+      title,
+      link,
+      imgUrl
+    });
+    wx.updateAppMessageShareData({
+      title,
+      desc,
+      link,
+      imgUrl
+    });
+  }).catch(() => {
+    console.log('网络错误');
   });
 }
 

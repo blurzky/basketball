@@ -52,6 +52,15 @@ const routes: Array<RouteConfig> = [
     component: () => import('../views/mall/Mall.vue')
   },
   {
+    path: '/success',
+    name: 'success',
+    meta: {
+      index: 0,
+      title: '提交成功'
+    },
+    component: () => import('../views/success/Success.vue')
+  },
+  {
     path: '/*',
     name: 'NotFind',
     meta: {
@@ -73,7 +82,6 @@ const router = new VueRouter({
     }
   }
 })
-
 router.beforeEach((to, from, next) => {
   store.commit('setLoadingStatus', true);
   next();

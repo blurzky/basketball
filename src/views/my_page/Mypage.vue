@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div v-if="!$store.state.userid" class="page">
+    <div v-if="userinfo.head" class="page">
       <div class="top">
         <div class="info">
           <img :src="userinfo.head">
@@ -21,7 +21,7 @@
         </div>
       </div>
       <van-cell class="cell" title="上课记录" icon="notes-o" @click="$toast('功能正在开发~')" />
-      <van-cell class="cell" :title="userinfo.role === 1 ? '课程打分' :'教练评语'" :icon="userinfo.role === 1 ? 'good-job-o' : 'comment-o'" @click="$router.push('/comment')" />
+      <van-cell class="cell" :title="userinfo.role === 1 ? '课程打分' :'教练评语'" :icon="userinfo.role === 1 ? 'good-job-o' : 'comment-o'" @click="$router.push(`/comment?role=${userinfo.role}`)" />
       <van-cell class="cell" title="分享比高" icon="ellipsis" @click="isShow = true" />
       <a href="tel: 13540497299"><van-cell class="cell" title="联系客服" icon="service-o" /></a>
     </div>
@@ -47,22 +47,21 @@
     private overTime: string = null;
     private userinfo: object = {};
     protected created(): void {
-      // if (!this.$store.state.userid) {
-      //   const url = encodeURIComponent(`${location.origin + location.pathname}`);
-      //   window.location.href = `https://open.weixin.qq.com/connect/oauth2/authorize?appid=wxf6b5696049ee6487&redirect_uri=${url}&response_type=code&scope=snsapi_userinfo#wechat_redirect`;
-      // }
+      if (!this.$store.state.userid) {
+        const url = encodeURIComponent(`${location.origin + location.pathname}`);
+        window.location.href = `https://open.weixin.qq.com/connect/oauth2/authorize?appid=wxf6b5696049ee6487&redirect_uri=${url}&response_type=code&scope=snsapi_userinfo#wechat_redirect`;
+      }
       this.getInfo();
     }
     private async getInfo(): Promise<any> {
       try {
         const { beeagleUsers, buySum, eveWeek, remaSum, remaWeek, vipOutTime } = await this.$api({
-          url: `/courseRema/findById?userid=${this.$store.state.userid || 63}`,
+          url: `/courseRema/findById?userid=${this.$store.state.userid}`,
           method: 'get',
         })
         this.formatOverTime(vipOutTime);
         this.classList.push(remaSum, buySum - remaSum, remaWeek);
         this.userinfo = beeagleUsers;
-        console.log( this.userinfo);
         this.$store.commit('setLoadingStatus', false);
       } catch (error) {
         this.$toast.fail(`${error}`);

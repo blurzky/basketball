@@ -49,7 +49,7 @@
         <van-field v-model="usePlace" readonly required label="体验地点" class="input" placeholder="请选择体验地点" @click="showList(2)"/>
         <van-field v-model="schoolYear" readonly required label="在校年级" class="input" placeholder="请选择在校年级" @click="showList(3)"/>
         <van-field v-model="payWay" readonly required label="缴费性质" class="input" placeholder="请选择缴费性质" @click="showList(4)"/>
-        <van-field v-model="introUser" readonly label="转介绍顾客" class="input" placeholder="请选择介绍的老顾客" @click="payWay.includes('老客转介绍') ? getIntroUser() : $toast('非老客转介绍')"/>
+        <van-field v-model="introUser" readonly label="转介绍顾客" class="input" placeholder="请选择介绍的老顾客" @click="payWayId === 4 ? getIntroUser() : $toast('非老客转介绍')"/>
         <van-field
           v-model="classes"
           readonly
@@ -143,7 +143,7 @@
     private currentUseDate: object = new Date();
     private listNum: number = null;
     private useWayId: string = null;
-    private payWayId: string = null;
+    private payWayId: number = null;
     private introUserId: string = null;
     private columns: any[] = [];
     private wayList: any[] = [];
@@ -157,10 +157,10 @@
     private myChooseClassId: any[] = [];
     private limitClassNum: number = null;
     protected created(): void {
-      // if (!this.$store.state.userid) {
-      //   const url = encodeURIComponent(`${location.origin + location.pathname}`);
-      //   window.location.href = `https://open.weixin.qq.com/connect/oauth2/authorize?appid=wxf6b5696049ee6487&redirect_uri=${url}&response_type=code&scope=snsapi_userinfo#wechat_redirect`;
-      // }
+      if (!this.$store.state.userid) {
+        const url = encodeURIComponent(`${location.origin + location.pathname}`);
+        window.location.href = `https://open.weixin.qq.com/connect/oauth2/authorize?appid=wxf6b5696049ee6487&redirect_uri=${url}&response_type=code&scope=snsapi_userinfo#wechat_redirect`;
+      }
       this.getTime();
       this.getway();
     }
@@ -230,7 +230,7 @@
         this.introUserList = obj;
         this.columns = [];
         obj.forEach((e: any) => {
-          this.columns.push(`${e.uname}${e.rname ? `【${e.rname}】` : ``}`);
+          this.columns.push(`${e.uname}${e.rname ? `【`+e.rname+`】` : ``}`);
         })
         this.listNum = 5;
         this.$toast.clear();
@@ -319,41 +319,46 @@
     }
     private submitRes() {
       const {name, telNumber, birthday, useday, useWayId, usePlace, schoolYear, myChooseClassId, payWayId, introUserId} = this;
-      if (name && telNumber && birthday && useday && useWayId && usePlace && schoolYear && myChooseClassId && payWayId && introUserId) {
-        this.$dialog.confirm({
-          message: '您将提交您填写的信息，请确认',
-          beforeClose: async (action, done) => {
-            if (action === 'confirm') {
-              try {
-                const {message, status} = await this.$api({
-                  url: '/courseTrial/applyCourseTrial',
-                  form: false,
-                  headers: 'json',
-                  data: JSON.stringify({
-                    addr: usePlace,
-                    date: useday,
-                    userid: this.$store.state.userid || 34,
-                    courseMudleId: useWayId,
-                    gradleClass: schoolYear,
-                    rname: name,
-                    tel: telNumber,
-                    birthday: birthday,
-                    courseEtc: myChooseClassId,
-                    inviteUser: introUserId,
-                    paymenttype: payWayId
+      if (name && telNumber && birthday && useday && useWayId && usePlace && schoolYear && myChooseClassId && payWayId) {
+        if (payWayId === 4 && !introUserId) {
+          this.$toast.fail('老客转介绍请选择介绍人');
+        } else {
+          this.$dialog.confirm({
+            message: '您将提交您填写的信息，请确认',
+            beforeClose: async (action, done) => {
+              if (action === 'confirm') {
+                try {
+                  const {message, status} = await this.$api({
+                    url: '/courseTrial/applyCourseTrial',
+                    form: false,
+                    headers: 'json',
+                    data: JSON.stringify({
+                      addr: usePlace,
+                      date: useday,
+                      userid: this.$store.state.userid || 34,
+                      courseMudleId: useWayId,
+                      gradleClass: schoolYear,
+                      rname: name,
+                      tel: telNumber,
+                      birthday: birthday,
+                      courseEtc: myChooseClassId,
+                      inviteUser: introUserId,
+                      paymenttype: payWayId
+                    })
                   })
-                })
+                  done();
+                  this.$toast('提交成功');
+                  this.$router.push('/success')
+                } catch (error) {
+                  done();
+                  this.$toast.fail(`${error}`);
+                }
+              } else {
                 done();
-                this.$toast('提交成功');
-              } catch (error) {
-                done();
-                this.$toast.fail(`${error}`);
               }
-            } else {
-              done();
-            }
-          },
-        }).catch(() => {});
+            },
+          }).catch(() => {});
+        }
       } else {
         this.$toast.fail('请完善资料');
       }
