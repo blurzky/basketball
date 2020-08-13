@@ -48,7 +48,7 @@
         <van-field v-model="useWay" readonly required label="体验方式" class="input" placeholder="请选择体验方式" @click="showList(1)"/>
         <van-field v-model="usePlace" readonly required label="体验地点" class="input" placeholder="请选择体验地点" @click="showList(2)"/>
         <van-field v-model="schoolYear" readonly required label="在校年级" class="input" placeholder="请选择在校年级" @click="showList(3)"/>
-        <van-field v-model="payWay" readonly required label="缴费性质" class="input" placeholder="请选择缴费性质" @click="showList(4)"/>
+        <!-- <van-field v-model="payWay" readonly required label="缴费性质" class="input" placeholder="请选择缴费性质" @click="showList(4)"/>
         <van-field v-model="introUser" readonly label="转介绍顾客" class="input" placeholder="请选择介绍的老顾客" @click="payWayId === 4 ? getIntroUser() : $toast('非老客转介绍')"/>
         <van-field
           v-model="classes"
@@ -60,7 +60,7 @@
           label="选课"
           placeholder="请选课"
           @click="birthday ? useWay ? getClassList() : $toast('请选择体验方式') : $toast('请选择生日')"
-        />
+        /> -->
         <van-popup v-model="showBirth" position="bottom">
           <van-datetime-picker
             v-model="currentDate"
@@ -157,14 +157,24 @@
     private myChooseClassId: any[] = [];
     private limitClassNum: number = null;
     protected created(): void {
+      if (!this.$store.state.inviteUser && this.$route.query.inviteUser) {
+        this.$store.commit('saveInviteUser', this.$route.query.inviteUser);
+      }
       if (!this.$store.state.userid) {
         const url = encodeURIComponent(`${location.origin + location.pathname}`);
         window.location.href = `https://open.weixin.qq.com/connect/oauth2/authorize?appid=wxf6b5696049ee6487&redirect_uri=${url}&response_type=code&scope=snsapi_userinfo#wechat_redirect`;
       } else {
         this.getTime();
-        this.getway();
+        Promise.all([
+          this.getway(),
+          this.getPlace(),
+          this.getYear()
+        ]).then(() => {
+          this.$store.commit('setLoadingStatus', false);
+        }).catch(error => {
+          this.$toast.fail(`${error}`);
+        });
       }
-      
     }
     private getTime(): void {
       const today = new Date();
@@ -175,52 +185,32 @@
       this.currentDate = new Date(year - 3, month, day);
     }
     private async getway(): Promise<any> {
-      try {
-        const obj = await this.$api({
-          url: '/courseMudle/findTrialCourseMudle',
-          method: 'get',
-        })
-        this.wayList = obj;
-        this.getPlace();
-      } catch (error) {
-        this.$toast.fail(`${error}`);
-      }
+      const obj = await this.$api({
+        url: '/courseMudle/findTrialCourseMudle',
+        method: 'get',
+      })
+      this.wayList = obj;
     }
     private async getPlace(): Promise<any> {
-      try {
-        const obj = await this.$api({
-          url: '/beeagleUsers/findAddrList',
-          method: 'get',
-        })
-        this.placeList = obj;
-        this.getYear();
-      } catch (error) {
-        this.$toast.fail(`${error}`);
-      }
+      const obj = await this.$api({
+        url: '/beeagleUsers/findAddrList',
+        method: 'get',
+      })
+      this.placeList = obj;
     }
     private async getYear(): Promise<any> {
-      try {
-        const obj = await this.$api({
-          url: '/beeagleUsers/findGradeClassList',
-          method: 'get',
-        })
-        this.schoolYearList = obj;
-        this.getPay();
-      } catch (error) {
-        this.$toast.fail(`${error}`);
-      }
+      const obj = await this.$api({
+        url: '/beeagleUsers/findGradeClassList',
+        method: 'get',
+      })
+      this.schoolYearList = obj;
     }
     private async getPay(): Promise<any> {
-      try {
-        const obj = await this.$api({
-          url: '/paymentType/findPaymentType',
-          method: 'get',
-        })
-        this.payWayList = obj;
-        this.$store.commit('setLoadingStatus', false);
-      } catch (error) {
-        this.$toast.fail(`${error}`);
-      }
+      const obj = await this.$api({
+        url: '/paymentType/findPaymentType',
+        method: 'get',
+      })
+      this.payWayList = obj;
     }
     private async getIntroUser(): Promise<any> {
       this.$toast.loading();
@@ -321,7 +311,7 @@
     }
     private submitRes() {
       const {name, telNumber, birthday, useday, useWayId, usePlace, schoolYear, myChooseClassId, payWayId, introUserId} = this;
-      if (name && telNumber && birthday && useday && useWayId && usePlace && schoolYear && myChooseClassId && payWayId) {
+      if (name && telNumber && birthday && useday && useWayId && usePlace && schoolYear) { // && myChooseClassId && payWayId
         if (payWayId === 4 && !introUserId) {
           this.$toast.fail('老客转介绍请选择介绍人');
         } else {
@@ -337,15 +327,15 @@
                     data: JSON.stringify({
                       addr: usePlace,
                       date: useday,
-                      userid: this.$store.state.userid || 34,
+                      userid: this.$store.state.userid,
                       courseMudleId: useWayId,
                       gradleClass: schoolYear,
                       rname: name,
                       tel: telNumber,
                       birthday: birthday,
                       courseEtc: myChooseClassId,
-                      inviteUser: introUserId,
-                      paymenttype: payWayId
+                      inviteUser: this.$store.state.inviteUser, // introUserId
+                      paymenttype: payWayId,
                     })
                   })
                   done();
@@ -371,8 +361,8 @@
 <style lang="scss" scoped>
   .showcard {
     width: 100%;
-    height: 250px;
-    object-fit: contain;
+    height: vw(250);
+    object-fit: cover;
   }
   .page {
     padding: 20px 12px;

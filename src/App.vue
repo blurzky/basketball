@@ -23,14 +23,6 @@
     get getLoadingStatus(): boolean {
       return this.$store.state.loadingStatus;
     }
-    protected beforeCreate ():void {
-      this.$wxShare({
-        title: '比高篮球',
-        desc: '体验课',
-        link: 'https://bigaowx.nhgk.shop/test_class',
-        imgUrl: 'https://static.tanjie.shop/beeagle/logo.png'
-      });
-    }
     protected async created(): Promise<any> {
       this.$store.commit('setPhone');
       if (location.href.includes('code')) {
@@ -44,6 +36,12 @@
           });
           this.$toast.success('登录成功')
           this.$store.commit('saveUserid', obj.userid);
+          this.$wxShare({
+            title: '比高篮球',
+            desc: '报名体验课',
+            link: `https://bigaowx.nhgk.shop/test_class?inviteUser=${this.$store.state.userid}`,
+            imgUrl: 'https://static.tanjie.shop/beeagle/logo.png'
+          });
           this.status = true;
         } catch (error) {
           this.$toast(`${error || '登录失败，请稍后重试'}`);
