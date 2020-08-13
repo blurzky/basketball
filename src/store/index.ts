@@ -8,7 +8,6 @@ export default new Vuex.Store({
     loadingStatus: true, // 页面切换时loading状态
     phone: 1, // 1android 2刘海屏iphone 3iphone
     userid: null, // 用户id
-    inviteUser: null,
   },
   mutations: {
     setLoadingStatus(state, res) {
@@ -26,8 +25,5 @@ export default new Vuex.Store({
     saveUserid(state, res) {
       state.userid = res;
     },
-    saveInviteUser(state, res) {
-      state.inviteUser = res;
-    }
   }
 })

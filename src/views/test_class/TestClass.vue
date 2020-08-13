@@ -157,11 +157,8 @@
     private myChooseClassId: any[] = [];
     private limitClassNum: number = null;
     protected created(): void {
-      if (!this.$store.state.inviteUser && this.$route.query.inviteUser) {
-        this.$store.commit('saveInviteUser', this.$route.query.inviteUser);
-      }
       if (!this.$store.state.userid) {
-        const url = encodeURIComponent(`${location.origin + location.pathname}`);
+        const url = encodeURIComponent(`${location.origin + location.pathname}?inviteUser=${this.$route.query.inviteUser}`);
         window.location.href = `https://open.weixin.qq.com/connect/oauth2/authorize?appid=wxf6b5696049ee6487&redirect_uri=${url}&response_type=code&scope=snsapi_userinfo#wechat_redirect`;
       } else {
         this.getTime();
@@ -334,7 +331,7 @@
                       tel: telNumber,
                       birthday: birthday,
                       courseEtc: myChooseClassId,
-                      inviteUser: this.$store.state.inviteUser, // introUserId
+                      inviteUser: this.$route.query.inviteUser, // introUserId
                       paymenttype: payWayId,
                     })
                   })

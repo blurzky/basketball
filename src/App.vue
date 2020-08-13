@@ -39,7 +39,7 @@
           this.$wxShare({
             title: '比高篮球',
             desc: '报名体验课',
-            link: `https://bigaowx.nhgk.shop/test_class?inviteUser=${this.$store.state.userid}`,
+            link: `https://bigaowx.nhgk.shop/test_class?inviteUser=${obj.userid}`,
             imgUrl: 'https://static.tanjie.shop/beeagle/logo.png'
           });
           this.status = true;
