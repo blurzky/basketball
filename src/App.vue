@@ -48,6 +48,7 @@
         }
       } else {
         this.status = true;
+        this.$store.commit('saveUserid', 63);
       }
     }
   }

@@ -2,45 +2,15 @@
   <div>
     <div v-if="$store.state.userid" class="page">
       <van-form>
-        <van-field
-          v-model="name"
-          required
-          clearable
-          class="input"
-          maxlength="6"
-          label="姓名"
-          placeholder="请输入姓名"
-          :rules="[{ pattern: /^(?:[\u4e00-\u9fa5]+)(?:●[\u4e00-\u9fa5]+)*$|^[a-zA-Z0-9]+\s?[\.·\-()a-zA-Z]*[a-zA-Z]+$/, message: '姓名格式不正确' }]"
-        />
-        <van-field
-          v-model="birthday"
-          readonly
-          required
-          class="input"
-          label="出生年月日"
-          placeholder="年-月-日"
-          right-icon="calender-o"
-          @click="showBirth = true"
-        />
-        <van-field
-          v-model="sex"
-          readonly
-          required
-          class="input"
-          label="性别"
-          placeholder="请选择性别"
-          @click="showPicks(1)"
-        />
-        <van-field
-          v-model="startDay"
-          readonly
-          required
-          class="input"
-          label="开始日期"
-          placeholder="年-月-日"
-          right-icon="calender-o"
-          @click="showStartDay = true"
-        />
+        <van-field v-model="name" readonly class="input" maxlength="6" label="姓名" />
+        <van-field v-model="birthday" readonly required class="input" label="出生年月日" placeholder="年-月-日" right-icon="calender-o" @click="showBirth = true" />
+        <van-field v-model="sex" readonly required class="input" label="性别" placeholder="请选择性别" @click="showPicks(1)" />
+        <van-field v-model="startDay" readonly required class="input" label="开始日期" placeholder="年-月-日" right-icon="calender-o" @click="showStartDay = true" />
+        <van-field v-model="weeks" readonly required class="input" label="有效周数" placeholder="请先选择产品" />
+        <van-field v-model="endDay" readonly class="input" label="结束日期" right-icon="calender-o" placeholder="请先选择开始日期和产品" />
+        <van-field v-model="payWay" readonly required label="缴费性质" class="input" placeholder="请选择缴费性质" @click="showPicks(4)"/>
+        <van-field v-model="introUser" readonly label="转介绍顾客" class="input" placeholder="请选择介绍的老顾客" @click="payWayId === 4 ? getIntroUser() : $toast('非老客转介绍')"/>
+        <van-field v-model="presentClass" readonly class="input" label="获赠课程" placeholder="请填写老客获得赠送课程" />
         <van-field
           v-model="tel"
           required
@@ -53,24 +23,11 @@
           placeholder="请输入电话号码"
           :rules="[{ pattern: /^1[3456789]\d{9}$/, message: '手机号格式不正确' }]"
         />
-        <van-field
-          v-model="goods"
-          readonly
-          required
-          class="input"
-          label="产品"
-          placeholder="请选择产品"
-          @click="showPicks(2)"
-        />
-        <van-field
-          v-model="equipment"
-          readonly
-          required
-          class="input"
-          label="装备性质"
-          placeholder="请选择装备性质"
-          @click="showPicks(3)"
-        />
+        <van-field v-model="goods" readonly required class="input" label="产品" placeholder="请选择产品" @click="startDay ? showPicks(2) : $toast('请先选择开始日期')" />
+        <van-field v-model="equipment" readonly required class="input" label="装备性质" placeholder="请选择装备性质" @click="showPicks(3)" />
+        <van-field v-model="notice" clearable class="input" type="textarea" :autosize="true" maxlength="150" label="备注" placeholder="请输入备注" />
+        <van-field v-model="getMoneyPerson" readonly class="input" label="收款人" placeholder="请选择收款人" @click="showPicks(6)" />
+        <van-field v-model="reallyMoney" required class="input" type="number" maxlength="6" label="实收费用" placeholder="请输入实际收费金额，单位元" />
         <van-field
           v-model="classes"
           readonly
@@ -81,16 +38,6 @@
           label="选课"
           placeholder="请选课"
           @click="birthday ? goods ? getClassList() : $toast('请选择产品') : $toast('请选择生日')"
-        />
-        <van-field
-          v-model="notice"
-          clearable
-          class="input"
-          type="textarea"
-          :autosize="true"
-          maxlength="150"
-          label="备注"
-          placeholder="请输入备注"
         />
       </van-form>
       <div class="submit">
@@ -163,18 +110,30 @@
     private currentDate: object = null;
     private minStartDate: object = new Date();
     private currentStartDate: object = null;
-    private name: string = null;
+    private name: any = null;
     private birthday: string = null;
     private sex: string = null;
     private startDay: string = null;
+    private weeks: any = null;
+    private endDay: string = null;
     private tel: string = null;
+    private payWay: string = null;
+    private introUser: string = null;
+    private presentClass: string = null;
     private goods: string = null;
     private equipment: string = null;
     private classes: string = null;
+    private payWayId: number = null;
+    private introUserId: string = null;
     private notice: string = '';
+    private getMoneyPerson: string = null;
+    private reallyMoney: string = null;
     private columns: any[] = [];
+    private payWayList: any[] = [];
+    private introUserList: any[] = [];
     private goodsList: any[] = [];
     private equipmentList: any[] = [];
+    private getMoneyPersonList: any[] = [];
     private sexList: string[] = ['男', '女'];
     private classesList: any[] = [];
     private classIdList: any[] = [];
@@ -189,6 +148,7 @@
       } else {
         this.getTime();
         this.getGoodList();
+        this.name = this.$route.query.name;
       }
     }
     private async submitRes(): Promise<any> {
@@ -232,10 +192,14 @@
     }
     private chooseBirth(e: any): void {
       this.birthday = `${e.getFullYear()}-${e.getMonth() < 9 ? `0` : ``}${e.getMonth() + 1}-${e.getDate() < 10 ? `0` : ``}${e.getDate()}`;
+      this.classesList = [];
       this.showBirth = false;
     }
     private chooseStartDay(e: any): void {
       this.startDay = `${e.getFullYear()}-${e.getMonth() < 9 ? `0` : ``}${e.getMonth() + 1}-${e.getDate() < 10 ? `0` : ``}${e.getDate()}`;
+      if (this.goods) {
+        this.getEndDay();
+      };
       this.showStartDay = false;
     }
     private showPicks(e: number): void {
@@ -249,6 +213,12 @@
         })
       } else if (e === 3) {
         this.columns = this.equipmentList;
+      } else if (e === 4) {
+        this.payWayList.forEach((e) => {
+          this.columns.push(e.name)
+        });
+      } else if (e === 6) {
+        this.columns = this.getMoneyPersonList;
       }
       this.showPicker = true;
     }
@@ -259,10 +229,26 @@
         this.goodsIndex = index;
         this.limitClassNum = this.goodsList[index].number;
         this.goods = e;
-      } else {
+        this.weeks = this.goodsList[index].week;
+        this.getEndDay();
+      } else if (this.pickIndex === 3) {
         this.equipment = e;
+      } else if (this.pickIndex === 4) {
+        this.payWay = e;
+        this.payWayId = this.payWayList[index].id;
+      } else if (this.pickIndex === 5) {
+        this.introUser = e;
+        this.introUserId = this.introUserList[index].userid;
+      } else {
+        this.getMoneyPerson = e;
       }
       this.showPicker = false;
+    }
+    private getEndDay(): void {
+      const arr = this.startDay.split('-');
+      const year: any = Number(arr[0]) , month: any = Number(arr[1]), day: any = Number(arr[2]);
+      const e = new Date(year, month, day + this.weeks * 7);
+      this.endDay = `${e.getFullYear()}-${e.getMonth() < 9 ? `0` : ``}${e.getMonth() + 1}-${e.getDate() < 10 ? `0` : ``}${e.getDate()}`;
     }
     private chooseClass(): void {
       this.showPickClass = false;
@@ -294,10 +280,28 @@
         obj.forEach((e: any) => {
           this.equipmentList.push(e.value);
         })
-        this.$store.commit('setLoadingStatus', false);
+        this.getPay();
       } catch (error) {
         this.$toast(`${error}`);
       }
+    }
+    private async getPay(): Promise<any> {
+      const obj = await this.$api({
+        url: '/paymentType/findPaymentType',
+        method: 'get',
+      })
+      this.payWayList = obj;
+      this.getGetMoneyPerson();
+    }
+    private async getGetMoneyPerson(): Promise<any> {
+      const obj = await this.$api({
+        url: '/coursePayUser/findRector',
+        method: 'get',
+      })
+      obj.forEach((e: any) => {
+        this.getMoneyPersonList.push(e.username);
+      });
+      this.$store.commit('setLoadingStatus', false);
     }
     private async getClassList(): Promise<any> {
       if (!this.classesList.length) {
@@ -318,6 +322,25 @@
         }
       } else {
         this.showPickClass = true;
+      }
+    }
+    private async getIntroUser(): Promise<any> {
+      this.$toast.loading();
+      try {
+        const obj = await this.$api({
+          url: '/beeagleUsers/findBeaagleUsers',
+          method: 'get',
+        })
+        this.introUserList = obj;
+        this.columns = [];
+        obj.forEach((e: any) => {
+          this.columns.push(`${e.uname}${e.rname ? `【`+e.rname+`】` : ``}`);
+        })
+        this.pickIndex = 5;
+        this.$toast.clear();
+        this.showPicker = true;
+      } catch (error) {
+        this.$toast.fail(`${error}`);
       }
     }
   }
