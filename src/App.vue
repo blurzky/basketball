@@ -48,7 +48,7 @@
         }
       } else {
         this.status = true;
-        this.$store.commit('saveUserid', 63);
+        this.$store.commit('saveUserid', 72);
       }
     }
   }

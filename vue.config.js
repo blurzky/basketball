@@ -32,8 +32,8 @@ module.exports = {
     open: true,
     proxy: {
       '/api': {
-        target: 'https://bigaowx.nhgk.shop',
-        // target: 'http://192.168.5.69:8000',
+        // target: 'https://bigaowx.nhgk.shop',
+        target: 'http://192.168.5.69:8000',
         changeOrigin: true,
         // pathRewrite: {
         //   '^/api': ''
