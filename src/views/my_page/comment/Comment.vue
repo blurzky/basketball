@@ -3,13 +3,13 @@
     <div class="page">
       <van-tabs v-model="tab" sticky color="#73a2f8" line-width="20" @change="changeTab">
         <van-tab v-for="(item, index) in tabs" :key="index" :title="item" :style="{padding: `.1px 12px 20px 12px`}">
-          <div  v-show="list.length" class="box" v-for="({ id, coachCommentId, addr, coachComment, coachDisGrade, coachStudyGrade, coach_name, time, etime, medias, userStudyGrade, userDisGrade, userCourseGrade, week}, index) in list" :key="index">
+          <div  v-show="list.length" class="box" v-for="({ remark, coach_id, id, coachCommentId, addr, coachComment, coachDisGrade, coachStudyGrade, coach_name, time, etime, medias, userStudyGrade, userDisGrade, userCourseGrade, week}, index) in list" :key="index">
             <div class="wrapper">
               <div class="label">上课时间:</div>
               <span>{{time}}-{{etime.substr(11, 5)}}</span>
               <span class="week">{{week}}</span>
               <div class="devision"></div>
-              <div v-if="tab === 0" class="give_point" @click="givePoint(id, coachCommentId)">打分</div>
+              <div v-if="tab === 0" class="give_point" @click="givePoint(id, coachCommentId, coach_id)">打分</div>
             </div>
             <div class="wrapper">
               <div class="label">上课教练:</div>
@@ -33,9 +33,7 @@
             <div class="pic_video_wrapper">
               <div v-for="({media_url, type}, index) in JSON.parse(medias)" :key="index" class="wrapper_box" @click="openPic(type, media_url)">
                 <img v-if="type === 1" class="pic" :src="media_url" />
-                <div v-else class="video">
-                  <van-icon name="play-circle-o" size="30" />
-                </div>
+                <video v-else class="video" :src="media_url" />
               </div>
               <div @click="savePic(id, index)">
                 <van-uploader v-if="role === 2 && JSON.parse(medias).length <= 4" class="upload" accept="image/*, video/*" preview-size="70px" :after-read="upLoadImg" />
@@ -45,7 +43,7 @@
             <div :style="{border: `1px dashed #eeeeee`, borderRadius: `14px`, padding: `8px`}">
               <div class="wrapper">
                 <div class="label">家长评语:</div>
-                <div class="addr"></div>
+                <div class="addr">{{remark}}</div>
               </div>
               <div class="wrapper">
                 <div class="small_label">纪律:</div>
@@ -57,16 +55,16 @@
               </div>
               <div class="wrapper">
                 <div class="label">详细评价:</div>
-                <div class="addr"></div>
+                <div class="comment_all">{{remark}}</div>
               </div>
             </div>
           </div>
         </van-tab>
       </van-tabs>
-      <van-popup v-model="picShow" closeable>
+      <van-popup v-model="picShow" closeable @close="closePic">
         <div class="pic_wrapper">
           <img v-if="picType === 1" :src="openPicUrl">
-          <video v-else controls :src="openPicUrl" />
+          <video v-else ref="video" controls :src="openPicUrl" />
         </div>
       </van-popup>
       <van-popup v-model="starShow" position="bottom" :style="{ height: '55%' }" @closed="closeStar">
@@ -116,6 +114,7 @@
     private role: any = Number(this.$route.query.role);
     private courseId: number = null;
     private coachId: number = null;
+    private coachid: number = null;
     private isShow: boolean = false;
     private picShow: boolean = false;
     private starShow: boolean = false;
@@ -143,15 +142,21 @@
       this.list = [];
       this.getList();
     }
-    private givePoint(id: number, coachCommentId: number): void {
+    private givePoint(id: number, coachCommentId: number, coach_id: number): void {
       this.courseId = id;
       this.coachId = coachCommentId;
+      this.coachid = coach_id;
       this.starShow = true;
     }
     private openPic(type: number, Picurl: string): void {
       this.picType = type;
       this.openPicUrl = Picurl;
       this.picShow = true;
+    }
+    private closePic(): void {
+      if (this.$refs.video) {
+        (this.$refs.video as any).pause();
+      }
     }
     private async getList(): Promise<any> {
       if (!this.$store.state.loadingStatus) {
@@ -185,7 +190,7 @@
       }
     }
     private async submit(): Promise<any> {
-      const { role, comment, courseId, coachId, coachDisStar, coachStudyStar, gradeStar } = this;
+      const { role, comment, courseId, coachId, coachid, coachDisStar, coachStudyStar, gradeStar } = this;
       if (comment && coachDisStar && coachStudyStar) {
         try {
           this.$toast.loading();
@@ -197,9 +202,10 @@
                   remark: comment,
                   courseId,
                   disGrade: coachDisStar,
-                  studysGrade: coachStudyStar,
+                  studyGrade: coachStudyStar,
                   courseGrade: gradeStar,
                   userid: this.$store.state.userid,
+                  coachId: coachid
                 },
                 form: false,
                 headers: 'json'
@@ -291,6 +297,7 @@
         }
         .label {
           width: vw(70);
+          align-self: flex-start;
         }
         .small_label {
           width: vw(40);
@@ -317,6 +324,10 @@
           margin-left: vw(20);
           background-color: #73a2f8;
         }
+        .comment_all {
+          flex: 1;
+          word-break: break-all;
+        }
       }
       .devision {
         height: 1px;
@@ -336,12 +347,6 @@
             height: vw(70);
             object-fit: cover;
             border-radius: 12px;
-          }
-          .video {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background-color: #eeeeee;
           }
         }
       }

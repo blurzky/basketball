@@ -10,7 +10,7 @@
         <van-field v-model="endDay" readonly class="input" label="结束日期" right-icon="calender-o" placeholder="请先选择开始日期和产品" />
         <van-field v-model="payWay" readonly required label="缴费性质" class="input" placeholder="请选择缴费性质" @click="showPicks(4)"/>
         <van-field v-model="introUser" readonly label="转介绍顾客" class="input" placeholder="请选择介绍的老顾客" @click="payWayId === 4 ? getIntroUser() : $toast('非老客转介绍')"/>
-        <van-field v-model="presentClass" readonly class="input" label="获赠课程" placeholder="请填写老客获得赠送课程" />
+        <van-field v-model="presentClass" readonly class="input" label="获赠课程" placeholder="请填写老客获得赠送课程(节)" />
         <van-field
           v-model="tel"
           required
@@ -152,23 +152,29 @@
       }
     }
     private async submitRes(): Promise<any> {
-      const { name, birthday, sex, startDay, tel, goods, equipment, classes, notice, goodsList, goodsIndex, myChooseClassId} = this;
-      if (name && birthday && sex && startDay && tel && goods && equipment && classes) {
+      const { name, birthday, sex, startDay, endDay, payWayId, tel, goods, equipment, classes, notice, goodsList, goodsIndex, myChooseClassId, reallyMoney, introUserId, presentClass} = this;
+      if (name && birthday && sex && startDay && tel && goods && equipment && classes && reallyMoney) {
         this.$toast.loading({duration: 0});
         try {
           await this.$api({
             url: '/coursePayUser/buyCourse',
             data: {
-              userid: this.$store.state.userid,
               uname: name,
               birthday: birthday,
               stime: startDay,
+              etime: endDay,
+              paymenttype: payWayId,
               tel: tel,
               courseId: goodsList[goodsIndex].id,
               week: goodsList[goodsIndex].week,
               quip: equipment,
               mark: notice,
+              money: reallyMoney,
+              payee: this.$route.query.userid,
               sex: sex === '男' ? 1 : 2,
+              userid: this.$store.state.userid,
+              inviteUser: introUserId,
+              giveCourse: presentClass.split(' ')[0],
               courseEtc: myChooseClassId
             },
             form: false,
@@ -197,9 +203,7 @@
     }
     private chooseStartDay(e: any): void {
       this.startDay = `${e.getFullYear()}-${e.getMonth() < 9 ? `0` : ``}${e.getMonth() + 1}-${e.getDate() < 10 ? `0` : ``}${e.getDate()}`;
-      if (this.goods) {
-        this.getEndDay();
-      };
+      if (this.goods) this.getEndDay();
       this.showStartDay = false;
     }
     private showPicks(e: number): void {
@@ -236,6 +240,7 @@
       } else if (this.pickIndex === 4) {
         this.payWay = e;
         this.payWayId = this.payWayList[index].id;
+        this.presentClass = `${this.payWayList[index].give_course} 节`;
       } else if (this.pickIndex === 5) {
         this.introUser = e;
         this.introUserId = this.introUserList[index].userid;
