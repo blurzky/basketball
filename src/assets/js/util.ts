@@ -69,7 +69,7 @@ function wxCheck() {
       ]];
       wx.config({
         debug: false,
-        appId: 'wxf6b5696049ee6487',
+        appId: 'wx0e734c0a8f759921',
         timestamp,
         nonceStr,
         signature,

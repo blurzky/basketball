@@ -3,7 +3,7 @@
     <div v-if="$store.state.userid" class="page">
       <van-form>
         <van-field v-model="name" readonly class="input" maxlength="6" label="姓名" />
-        <van-field v-model="birthday" readonly required class="input" label="出生年月日" placeholder="年-月-日" right-icon="calender-o" @click="showBirth = true" />
+        <van-field v-model="birthday" readonly class="input" label="出生年月日" right-icon="calender-o" />
         <van-field v-model="sex" readonly required class="input" label="性别" placeholder="请选择性别" @click="showPicks(1)" />
         <van-field v-model="startDay" readonly required class="input" label="开始日期" placeholder="年-月-日" right-icon="calender-o" @click="showStartDay = true" />
         <van-field v-model="weeks" readonly required class="input" label="有效周数" placeholder="请先选择产品" />
@@ -43,25 +43,14 @@
       <div class="submit">
         <van-button round block type="info" @click="submitRes">提交</van-button>
       </div>
-      <van-popup v-model="showBirth" position="bottom">
-        <van-datetime-picker
-          v-model="currentDate"
-          type="date"
-          title="选择出生年月日"
-          :min-date="minDate"
-          :max-date="maxDate"
-           @confirm="chooseBirth"
-           @cancel="showBirth = false"
-        />
-      </van-popup>
       <van-popup v-model="showStartDay" position="bottom">
         <van-datetime-picker
           v-model="currentStartDate"
           type="date"
           title="选择开始日期"
           :min-date="minStartDate"
-           @confirm="chooseStartDay"
-           @cancel="showStartDay = false"
+          @confirm="chooseStartDay"
+          @cancel="showStartDay = false"
         />
       </van-popup>
       <van-popup v-model="showPicker" position="bottom">
@@ -100,31 +89,27 @@
     }
   })
   export default class Mall extends Vue {
-    private showBirth: boolean = false;
     private showStartDay: boolean = false;
     private showPicker: boolean = false;
     private showPickClass: boolean = false;
     private pickIndex: number = null;
-    private minDate: object = new Date(1980, 0, 1);
-    private maxDate: object = null;
-    private currentDate: object = null;
     private minStartDate: object = new Date();
     private currentStartDate: object = null;
     private name: any = null;
-    private birthday: string = null;
+    private birthday: any = null;
     private sex: string = null;
     private startDay: string = null;
     private weeks: any = null;
     private endDay: string = null;
     private tel: string = null;
     private payWay: string = null;
-    private introUser: string = null;
-    private presentClass: string = null;
+    private introUser: any = null;
+    private presentClass: any = null;
     private goods: string = null;
     private equipment: string = null;
     private classes: string = null;
     private payWayId: number = null;
-    private introUserId: string = null;
+    private introUserId: any = null;
     private notice: string = '';
     private getMoneyPerson: string = null;
     private reallyMoney: string = null;
@@ -134,7 +119,7 @@
     private goodsList: any[] = [];
     private equipmentList: any[] = [];
     private getMoneyPersonList: any[] = [];
-    private sexList: string[] = ['男', '女'];
+    private sexList: string[] = ['男', '女']; 
     private classesList: any[] = [];
     private classIdList: any[] = [];
     private myChooseClass: string[] = [];
@@ -143,17 +128,22 @@
     private limitClassNum: number = null;
     protected created(): void {
       if (!this.$store.state.userid) {
-        const url = encodeURIComponent(`${location.origin + location.pathname}?name=${this.$route.query.name}&userid=${this.$route.query.userid}`);
+        const url = encodeURIComponent(location.href);
         window.location.href = `https://open.weixin.qq.com/connect/oauth2/authorize?appid=wx0e734c0a8f759921&redirect_uri=${url}&response_type=code&scope=snsapi_userinfo#wechat_redirect`;
       } else {
-        this.getTime();
         this.getGoodList();
-        this.name = this.$route.query.name;
+        console.log(encodeURIComponent(location.href));
+        const { name, birthday, inviteName, giveCourse, inviteUser } = this.$route.query;
+        this.name = name;
+        this.birthday = birthday;
+        this.introUser = inviteName;
+        this.presentClass = giveCourse;
+        this.introUserId = inviteUser;
       }
     }
     private async submitRes(): Promise<any> {
       const { name, birthday, sex, startDay, endDay, payWayId, tel, goods, equipment, classes, notice, goodsList, goodsIndex, myChooseClassId, reallyMoney, introUserId, presentClass} = this;
-      if (name && birthday && sex && startDay && tel && goods && equipment && classes && reallyMoney) {
+      if (sex && startDay && tel && goods && equipment && classes && reallyMoney) {
         this.$toast.loading({duration: 0});
         try {
           await this.$api({
@@ -187,19 +177,6 @@
       } else {
         this.$toast('请完善信息');
       }
-    }
-    private getTime(): void {
-      const today = new Date();
-      const year = today.getFullYear();
-      const month = today.getMonth();
-      const day = today.getDate();
-      this.maxDate = new Date(year - 3, month, day);
-      this.currentDate = new Date(year - 3, month, day);
-    }
-    private chooseBirth(e: any): void {
-      this.birthday = `${e.getFullYear()}-${e.getMonth() < 9 ? `0` : ``}${e.getMonth() + 1}-${e.getDate() < 10 ? `0` : ``}${e.getDate()}`;
-      this.classesList = [];
-      this.showBirth = false;
     }
     private chooseStartDay(e: any): void {
       this.startDay = `${e.getFullYear()}-${e.getMonth() < 9 ? `0` : ``}${e.getMonth() + 1}-${e.getDate() < 10 ? `0` : ``}${e.getDate()}`;

@@ -28,18 +28,18 @@
       if (location.href.includes('code')) {
         const code = this.setQuery('code');
         try {
-          const obj = await this.$api({
+          const { userid } = await this.$api({
             url: '/beeagleUsers/findByGoid',
             data: {
               code,
             }
           });
           this.$toast.success('登录成功')
-          this.$store.commit('saveUserid', obj.userid);
+          this.$store.commit('saveUserid', userid);
           this.$wxShare({
             title: '比高篮球',
             desc: '报名体验课',
-            link: `https://bigaowx.nhgk.shop/test_class?inviteUser=${obj.userid}`,
+            link: `https://bigaowx.nhgk.shop/test_class?inviteUser=${userid}`,
             imgUrl: 'https://static.tanjie.shop/beeagle/logo.png'
           });
           this.status = true;
