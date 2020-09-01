@@ -159,7 +159,7 @@
     protected created(): void {
       if (!this.$store.state.userid) {
         const url = encodeURIComponent(`${location.origin + location.pathname}?inviteUser=${this.$route.query.inviteUser}`);
-        window.location.href = `https://open.weixin.qq.com/connect/oauth2/authorize?appid=wxf6b5696049ee6487&redirect_uri=${url}&response_type=code&scope=snsapi_userinfo#wechat_redirect`;
+        window.location.href = `https://open.weixin.qq.com/connect/oauth2/authorize?appid=wx0e734c0a8f759921&redirect_uri=${url}&response_type=code&scope=snsapi_userinfo#wechat_redirect`;
       } else {
         this.getTime();
         Promise.all([
