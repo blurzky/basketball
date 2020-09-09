@@ -172,7 +172,7 @@
           })
           this.$toast('提交成功');;
         } catch (error) {
-          this.$toast(`${error}`);
+          this.$toast(error);
         }
       } else {
         this.$toast('请完善信息');
@@ -250,7 +250,7 @@
         this.goodsList = obj;
         this.getEquipmentList();
       } catch (error) {
-        this.$toast(`${error}`);
+        this.$toast(error);
       }
     }
     private async getEquipmentList(): Promise<any> {
@@ -264,7 +264,7 @@
         })
         this.getPay();
       } catch (error) {
-        this.$toast(`${error}`);
+        this.$toast(error);
       }
     }
     private async getPay(): Promise<any> {
@@ -300,7 +300,7 @@
           this.$toast.clear();
           this.showPickClass = true;
         } catch (error) {
-          this.$toast(`${error}`);
+          this.$toast(error);
         }
       } else {
         this.showPickClass = true;
@@ -322,7 +322,7 @@
         this.$toast.clear();
         this.showPicker = true;
       } catch (error) {
-        this.$toast.fail(`${error}`);
+        this.$toast.fail(error);
       }
     }
   }

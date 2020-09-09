@@ -61,6 +61,15 @@ const routes: Array<RouteConfig> = [
     component: () => import('../views/success/Success.vue')
   },
   {
+    path: '/submit',
+    name: 'submit',
+    meta: {
+      index: 0,
+      title: '确认上课'
+    },
+    component: () => import('../views/submit/Submit.vue')
+  },
+  {
     path: '/*',
     name: 'NotFind',
     meta: {
