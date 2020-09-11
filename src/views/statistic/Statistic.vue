@@ -93,7 +93,7 @@
         const { daizh, list, radio, yinliu, yizh } = await this.$api({
           url: '/courseTrial/findTongjiData',
           data: {
-            userid: this.$store.state.userid || 65,
+            userid: this.$store.state.userid,
             sTime: date[0],
             eTime: date[1],
             size: size,
