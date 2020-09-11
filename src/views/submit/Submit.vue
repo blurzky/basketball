@@ -2,7 +2,7 @@
   <div>
     <div class="page">
       <div class="box" v-if="info">
-        <van-cell title="上课时间：" :value="`${info.start_time} - ${info.end_time}`" size="large" title-class="title_class" value-class="value_class" />
+        <van-cell title="上课时间：" :value="`${info.week} ${info.start_time} - ${info.end_time}`" size="large" title-class="title_class" value-class="value_class" />
         <van-cell title="上课地点：" :value="info.addr"  size="large" title-class="title_class" value-class="value_class" />
         <van-cell title="上课教练：" :value="info.coach_name"  size="large" title-class="title_class" value-class="value_class" />
         <van-cell title="联系电话：" :value="info.phone"  size="large" title-class="title_class" value-class="value_class" />
@@ -18,7 +18,7 @@
         />
         <div class="btns">
           <van-button round type="primary" class="btn" @click="submit(4)">能上课</van-button>
-          <van-button round type="info" class="btn" :disabled="!message.length" @click="submit(3)">不能上课</van-button>
+          <van-button round type="info" class="btn" @click="submit(3)">不能上课</van-button>
         </div>
       </div>
     </div>
@@ -52,7 +52,7 @@
           url: '/course/findCourseInfoById',
           data: {
             courseId: this.$route.query.courseId,
-            userid: this.$store.state.userid
+            userid: this.$store.state.userid || 69
           }
         });
         this.info = obj;
@@ -62,19 +62,23 @@
       }
     }
     private async submit(type: number): Promise<any> {
-      try {
-        await this.$api({
-          url: '/courseStudent/updateCourseStudent',
-          data: {
-            courseId: this.$route.query.courseId,
-            userid: this.$store.state.userid,
-            state: type,
-            remark: this.message
-          }
-        });
-        this.$toast('提交成功');
-      } catch (error) {
-        this.$toast(error);
+      if (type === 3 && !this.message.length) {
+        this.$toast('请填写原因')
+      } else {
+        try {
+          await this.$api({
+            url: '/courseStudent/updateCourseStudent',
+            data: {
+              courseId: this.$route.query.courseId,
+              userid: this.$store.state.userid || 69,
+              state: type,
+              remark: this.message
+            }
+          });
+          this.$toast('提交成功');
+        } catch (error) {
+          this.$toast(error);
+        }
       }
     }
   }
@@ -87,6 +91,9 @@
       padding: 5px 10px;
       border-radius: 12px;
       background-color: #f3f3f3;
+    }
+    /deep/ .van-cell::after {
+      border: none;
     }
     .box {
       padding: 20px 10px;

@@ -70,6 +70,15 @@ const routes: Array<RouteConfig> = [
     component: () => import('../views/submit/Submit.vue')
   },
   {
+    path: '/statistic',
+    name: 'statistic',
+    meta: {
+      index: 0,
+      title: '数据统计'
+    },
+    component: () => import('../views/statistic/Statistic.vue')
+  },
+  {
     path: '/*',
     name: 'NotFind',
     meta: {
