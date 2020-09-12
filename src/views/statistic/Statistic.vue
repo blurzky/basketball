@@ -2,7 +2,7 @@
   <div>
     <div class="page">
       <div class="icon_box" v-if="badge.length">
-        <span>效率({{badge[3]}})</span>
+        <span>效率({{badge[3]}}%)</span>
         <img src="./icon/calendar.png" class="icon" @click="dateShow = true" />
       </div>
       <van-tabs v-model="active" sticky color="#73a2f8" line-width="30" @change="changeTab">
