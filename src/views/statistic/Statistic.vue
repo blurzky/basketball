@@ -39,7 +39,7 @@
           </div>
         </van-tab>
       </van-tabs>
-      <van-calendar v-model="dateShow" type="range" @confirm="chooseDate" />
+      <van-calendar ref="calendar" v-model="dateShow" type="range" @confirm="chooseDate" />
       <div v-if="dateShow" class="clear_date">
         <van-button round type="info" class="clear_btn" @click="clearDate()">清除时间筛选</van-button>
       </div>
@@ -121,9 +121,11 @@
     }
     private clearDate(): void {
       this.list = [];
+      this.date = ['', ''];
+      (this.$refs.calendar as any).reset();
       this.getList();
       this.dateShow = false;
-    }
+    } 
   }
 </script>
 
