@@ -39,9 +39,9 @@
           </div>
         </van-tab>
       </van-tabs>
-      <van-calendar ref="calendar" v-model="dateShow" type="range" @confirm="chooseDate" />
+      <van-calendar :min-date="minDate" :max-date="maxDate" ref="calendar" v-model="dateShow" type="range" @confirm="chooseDate" />
       <div v-if="dateShow" class="clear_date">
-        <van-button round type="info" class="clear_btn" @click="clearDate()">清除时间筛选</van-button>
+        <van-button round type="info" size="small" class="clear_btn" @click="clearDate()">清除时间筛选</van-button>
       </div>
     </div>
   </div>
@@ -59,6 +59,8 @@
     }
   })
   export default class Statistic extends Vue {
+    private minDate: any = new Date(2016, 0 ,1);
+    private maxDate: any= new Date();
     private active: number = 0;
     private tabs: string[] = ['已引流', '待转化', '已转化'];
     private dateShow: boolean = false;
@@ -67,6 +69,7 @@
     private list: any = [];
     private badge: string[] = [];
     protected created(): void {
+      // this.$store.commit('saveUserid', 63);
       this.getList();
     }
     private beforeDestroy(): void {
@@ -139,12 +142,16 @@
       top: 0;
       left: 0;
       width: 100%;
-      height: 60px;
+      height: 44px;
       display: flex;
       z-index: 9999;
       position: fixed;
       align-items: center;
       justify-content: center;
+      background-color: #fff;
+      .clear_btn {
+        width: 150px;
+      }
     }
     .icon_box {
       top: 0;
