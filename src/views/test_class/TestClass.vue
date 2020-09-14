@@ -169,7 +169,7 @@
         ]).then(() => {
           this.$store.commit('setLoadingStatus', false);
         }).catch(error => {
-          this.$toast.fail(`${error}`);
+          this.$toast.fail(error);
         });
       }
     }
@@ -300,7 +300,7 @@
           this.$toast.clear();
           this.showPickClass = true;
         } catch (error) {
-          this.$toast(`${error}`);
+          this.$toast(error);
         }
       } else {
         this.showPickClass = true;
@@ -337,10 +337,10 @@
                   })
                   done();
                   this.$toast('提交成功');
-                  this.$router.push('/success')
+                  this.$router.push('/success');
                 } catch (error) {
                   done();
-                  this.$toast.fail(`${error}`);
+                  this.$toast.fail(error);
                 }
               } else {
                 done();
