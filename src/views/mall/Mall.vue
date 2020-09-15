@@ -133,7 +133,6 @@
         window.location.href = `https://open.weixin.qq.com/connect/oauth2/authorize?appid=wx0e734c0a8f759921&redirect_uri=${url}&response_type=code&scope=snsapi_userinfo#wechat_redirect`;
       } else {
         this.getGoodList();
-        console.log(encodeURIComponent(location.href));
         const { name, birthday, inviteName, giveCourse, inviteUser } = this.$route.query;
         this.name = name;
         this.birthday = birthday;
@@ -163,10 +162,11 @@
               money: reallyMoney,
               payee: getMoneyPersonId,
               sex: sex === '男' ? 1 : 2,
-              userid: this.$store.state.userid,
+              userid: this.$route.query.userid,
               inviteUser: introUserId,
               giveCourse: presentClass.split(' ')[0],
-              courseEtc: myChooseClassId
+              courseEtc: myChooseClassId,
+              myuserid: this.$store.state.userid
             },
             form: false,
             headers: 'json',
