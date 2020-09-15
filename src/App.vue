@@ -32,6 +32,7 @@
             url: '/beeagleUsers/findByGoid',
             data: {
               code,
+              invite_user: this.$route.query.inviteUser || 0
             }
           });
           this.$toast.success('登录成功')
@@ -39,7 +40,7 @@
           this.$wxShare({
             title: '比高篮球',
             desc: '报名体验课',
-            link: `https://bigaowx.nhgk.shop/test_class?inviteUser=${userid || 0}`,
+            link: `https://bigaowx.nhgk.shop/test_class?inviteUser=${userid}`,
             imgUrl: 'https://static.tanjie.shop/beeagle/logo.png'
           });
           this.status = true;

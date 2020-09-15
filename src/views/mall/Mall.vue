@@ -112,6 +112,7 @@
     private introUserId: any = null;
     private notice: string = '';
     private getMoneyPerson: string = null;
+    private getMoneyPersonId: string = null;
     private reallyMoney: string = null;
     private columns: any[] = [];
     private payWayList: any[] = [];
@@ -142,7 +143,7 @@
       }
     }
     private async submitRes(): Promise<any> {
-      const { name, birthday, sex, startDay, endDay, payWayId, tel, goods, equipment, classes, notice, goodsList, goodsIndex, myChooseClassId, reallyMoney, introUserId, presentClass} = this;
+      const { name, birthday, sex, startDay, endDay, payWayId, tel, goods, equipment, classes, notice, goodsList, goodsIndex, myChooseClassId, reallyMoney, introUserId, presentClass, getMoneyPersonId} = this;
       if (sex && startDay && tel && goods && equipment && classes && reallyMoney) {
         this.$toast.loading({duration: 0});
         try {
@@ -160,7 +161,7 @@
               quip: equipment,
               mark: notice,
               money: reallyMoney,
-              payee: this.$route.query.userid,
+              payee: getMoneyPersonId,
               sex: sex === '男' ? 1 : 2,
               userid: this.$store.state.userid,
               inviteUser: introUserId,
@@ -170,7 +171,8 @@
             form: false,
             headers: 'json',
           })
-          this.$toast('提交成功');;
+          this.$toast('提交成功');
+          this.$router.push('/success');
         } catch (error) {
           this.$toast(error);
         }
@@ -196,10 +198,12 @@
         this.columns = this.equipmentList;
       } else if (e === 4) {
         this.payWayList.forEach((e) => {
-          this.columns.push(e.name)
+          this.columns.push(e.name);
         });
       } else if (e === 6) {
-        this.columns = this.getMoneyPersonList;
+        this.getMoneyPersonList.forEach((e) => {
+          this.columns.push(e.username);
+        });
       }
       this.showPicker = true;
     }
@@ -223,6 +227,7 @@
         this.introUserId = this.introUserList[index].userid;
       } else {
         this.getMoneyPerson = e;
+        this.getMoneyPersonId = this.getMoneyPersonList[index].user_id;
       }
       this.showPicker = false;
     }
@@ -280,9 +285,7 @@
         url: '/coursePayUser/findRector',
         method: 'get',
       })
-      obj.forEach((e: any) => {
-        this.getMoneyPersonList.push(e.username);
-      });
+      this.getMoneyPersonList = obj;
       this.$store.commit('setLoadingStatus', false);
     }
     private async getClassList(): Promise<any> {
