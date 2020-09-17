@@ -32,7 +32,7 @@
             url: '/beeagleUsers/findByGoid',
             data: {
               code,
-              invite_user: this.$route.query.inviteUser
+              invite_user: this.$route.query.inviteUser || 0
             }
           });
           this.$toast.success('登录成功')

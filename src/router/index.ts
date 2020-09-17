@@ -79,6 +79,15 @@ const routes: Array<RouteConfig> = [
     component: () => import('../views/statistic/Statistic.vue')
   },
   {
+    path: '/fill_mine',
+    name: 'fill_mine',
+    meta: {
+      index: 0,
+      title: '数据统计'
+    },
+    component: () => import('../views/my_page/fill_mine/FillMine.vue')
+  },
+  {
     path: '/*',
     name: 'NotFind',
     meta: {

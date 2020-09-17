@@ -128,7 +128,7 @@
     private goodsIndex: number = null;
     private limitClassNum: number = null;
     protected created(): void {
-      this.$store.commit('saveUserid', 63);
+      // this.$store.commit('saveUserid', 65);
       if (!this.$store.state.userid) {
         const url = encodeURIComponent(location.href);
         window.location.href = `https://open.weixin.qq.com/connect/oauth2/authorize?appid=wx0e734c0a8f759921&redirect_uri=${url}&response_type=code&scope=snsapi_userinfo#wechat_redirect`;
@@ -163,10 +163,11 @@
               money: reallyMoney,
               payee: getMoneyPersonId,
               sex: sex === '男' ? 1 : 2,
-              userid: this.$store.state.userid,
+              userid: this.$route.query.userid,
               inviteUser: introUserId,
               giveCourse: presentClass.split(' ')[0],
-              courseEtc: myChooseClassId
+              courseEtc: myChooseClassId,
+              myuserid: this.$store.state.userid
             },
             form: false,
             headers: 'json',
@@ -198,12 +199,12 @@
         this.columns = this.equipmentList;
       } else if (e === 4) {
         this.payWayList.forEach((e) => {
-          this.columns.push(e.name)
+          this.columns.push(e.name);
         });
       } else if (e === 6) {
         this.getMoneyPersonList.forEach((e) => {
           this.columns.push(e.username);
-        })
+        });
       }
       this.showPicker = true;
     }
@@ -316,11 +317,15 @@
           url: '/beeagleUsers/findBeaagleUsers',
           method: 'get',
         })
-        this.introUserList = obj;
+        let list: any[] = [];
         this.columns = [];
         obj.forEach((e: any) => {
-          this.columns.push(`${e.uname}${e.rname ? `【`+e.rname+`】` : ``}`);
-        })
+          if (e.rname) {
+            list.push(e);
+            this.columns.push(e.rname);
+          }
+        });
+        this.introUserList = list;
         this.pickIndex = 5;
         this.$toast.clear();
         this.showPicker = true;
