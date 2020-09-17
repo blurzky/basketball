@@ -114,12 +114,13 @@
     protected created(): void {
       this.getTime();
       this.getYear();
-      const { uname, tel, rname, sex, grade} = this.$route.query;
+      const { uname, tel, rname, sex, grade, birthday} = this.$route.query;
       this.nickname = uname;
       this.telNumber = tel;
       this.realname = rname;
       this.sex = sex;
       this.grade = grade;
+      this.birthday = birthday;
     }
     private getTime(): void {
       const today = new Date();
@@ -158,7 +159,7 @@
     private async submitRes(): Promise<any> {
       this.$toast.loading();
       try {
-        const { nickname, telNumber, realname, sex, grade} = this;
+        const { nickname, telNumber, realname, sex, grade, birthday} = this;
         await this.$api({
           url: '/beeagleUsers/updateUserInfo',
           form: false,
@@ -169,7 +170,8 @@
             tel: telNumber,
             rname: realname,
             childSex: sex,
-            gradeClass: grade
+            gradeClass: grade,
+            birthday: birthday
           }
         });
         this.$toast('保存成功');

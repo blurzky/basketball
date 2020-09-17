@@ -5,7 +5,7 @@
         <div class="info">
           <img :src="userinfo.head">
           <span class="name">{{userinfo.uname}}</span>
-          <img class="set_img" src="./icon/set.png" @click="$router.push(`/fill_mine?uname=${userinfo.uname}&tel=${userinfo.tel}&rname=${userinfo.rname}&sex=${userinfo.childSex}&grade=${userinfo.gradeClass}`)">
+          <img class="set_img" src="./icon/set.png" @click="$router.push(`/fill_mine?uname=${userinfo.uname ? userinfo.uname : ''}&tel=${userinfo.tel ? userinfo.tel : ''}&rname=${userinfo.rname ? userinfo.rname : ''}&sex=${userinfo.childSex ? userinfo.childSex : ''}&grade=${userinfo.gradeClass ? userinfo.gradeClass : ''}&birthday=${userinfo.birthday ? userinfo.birthday : ''}`)">
         </div>
         <div class="vip">
           <div class="vip_icon">VIP</div>
@@ -49,7 +49,7 @@
     private overTime: string = null;
     private userinfo: object = {};
     protected created(): void {
-      this.$store.commit('saveUserid', 111);
+      // this.$store.commit('saveUserid', 111);
       if (!this.$store.state.userid) {
         const url = encodeURIComponent(`${location.origin + location.pathname}`);
         window.location.href = `https://open.weixin.qq.com/connect/oauth2/authorize?appid=wx0e734c0a8f759921&redirect_uri=${url}&response_type=code&scope=snsapi_userinfo#wechat_redirect`;
@@ -66,6 +66,10 @@
         this.formatOverTime(vipOutTime);
         this.classList.push(remaSum, buySum - remaSum, remaWeek);
         this.userinfo = beeagleUsers;
+        if ((this.userinfo as any).birthday) {
+          const e: any = new Date((this.userinfo as any).birthday);
+          (this.userinfo as any).birthday = `${e.getFullYear()}-${e.getMonth() < 9 ? `0` : ``}${e.getMonth() + 1}-${e.getDate() < 10 ? `0` : ``}${e.getDate()}`
+        }
         this.$store.commit('setLoadingStatus', false);
       } catch (error) {
         this.$toast.fail(`${error}`);
