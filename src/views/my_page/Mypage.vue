@@ -5,6 +5,7 @@
         <div class="info">
           <img :src="userinfo.head">
           <span class="name">{{userinfo.uname}}</span>
+          <img class="set_img" src="./icon/set.png" @click="$router.push(`/fill_mine?uname=${userinfo.uname}&tel=${userinfo.tel}&rname=${userinfo.rname}&sex=${userinfo.childSex}&grade=${userinfo.gradeClass}`)">
         </div>
         <div class="vip">
           <div class="vip_icon">VIP</div>
@@ -48,6 +49,7 @@
     private overTime: string = null;
     private userinfo: object = {};
     protected created(): void {
+      this.$store.commit('saveUserid', 111);
       if (!this.$store.state.userid) {
         const url = encodeURIComponent(`${location.origin + location.pathname}`);
         window.location.href = `https://open.weixin.qq.com/connect/oauth2/authorize?appid=wx0e734c0a8f759921&redirect_uri=${url}&response_type=code&scope=snsapi_userinfo#wechat_redirect`;
@@ -101,6 +103,10 @@
           margin: 0 20px;
           font-size: 16px;
           font-weight: 600;
+        }
+        .set_img {
+          width: 25px;
+          height: 25px;
         }
       }
       .vip {
