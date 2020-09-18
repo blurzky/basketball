@@ -83,7 +83,7 @@ const routes: Array<RouteConfig> = [
     name: 'fill_mine',
     meta: {
       index: 0,
-      title: '数据统计'
+      title: '完善资料'
     },
     component: () => import('../views/my_page/fill_mine/FillMine.vue')
   },

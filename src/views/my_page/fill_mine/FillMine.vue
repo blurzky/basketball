@@ -107,13 +107,11 @@
     private sex: any = '';
     private columns: any[] = [];
     private gradeList: any[] = [];
-    private minDate: object = new Date(1980, 0, 1);
+    private minDate: object = new Date(1999, 0, 1);
     private maxDate: object = null;
     private showBirth: boolean = false;
     private showWay: boolean = false;
     protected created(): void {
-      this.getTime();
-      this.getYear();
       const { uname, tel, rname, sex, grade, birthday} = this.$route.query;
       this.nickname = uname;
       this.telNumber = tel;
@@ -121,6 +119,8 @@
       this.sex = sex;
       this.grade = grade;
       this.birthday = birthday;
+      this.getTime();
+      this.getYear();
     }
     private getTime(): void {
       const today = new Date();
@@ -128,7 +128,7 @@
       const month = today.getMonth();
       const day = today.getDate();
       this.maxDate = new Date(year - 3, month, day);
-      this.currentDate = new Date(year - 3, month, day);
+      this.currentDate = new Date(this.birthday || this.maxDate);
     }
     private async getYear(): Promise<any> {
       try {
