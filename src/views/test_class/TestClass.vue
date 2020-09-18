@@ -216,11 +216,15 @@
           url: '/beeagleUsers/findBeaagleUsers',
           method: 'get',
         })
-        this.introUserList = obj;
+        let list: any[] = [];
         this.columns = [];
         obj.forEach((e: any) => {
-          this.columns.push(`${e.uname}${e.rname ? `【`+e.rname+`】` : ``}`);
-        })
+          if (e.rname) {
+            list.push(e);
+            this.columns.push(e.rname);
+          }
+        });
+        this.introUserList = list;
         this.listNum = 5;
         this.$toast.clear();
         this.showWay = true;
