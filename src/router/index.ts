@@ -88,6 +88,15 @@ const routes: Array<RouteConfig> = [
     component: () => import('../views/my_page/fill_mine/FillMine.vue')
   },
   {
+    path: '/coach_course',
+    name: 'coach_course',
+    meta: {
+      index: 0,
+      title: '教练课程'
+    },
+    component: () => import('../views/coach_course/CoachCourse.vue')
+  },
+  {
     path: '/*',
     name: 'NotFind',
     meta: {
