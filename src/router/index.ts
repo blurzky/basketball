@@ -97,6 +97,24 @@ const routes: Array<RouteConfig> = [
     component: () => import('../views/coach_course/CoachCourse.vue')
   },
   {
+    path: '/upload_course',
+    name: 'upload_course',
+    meta: {
+      index: 0,
+      title: '上传教案'
+    },
+    component: () => import('../views/coach_course/UploadCourse.vue')
+  },
+  {
+    path: '/check_course',
+    name: 'check_course',
+    meta: {
+      index: 0,
+      title: '审核教案'
+    },
+    component: () => import('../views/coach_course/CheckCourse.vue')
+  },
+  {
     path: '/*',
     name: 'NotFind',
     meta: {
