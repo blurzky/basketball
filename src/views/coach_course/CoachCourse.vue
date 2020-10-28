@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div class="tabs_wrapper">
+    <div v-if="waitList" class="tabs_wrapper">
       <div class="tabs">
         <div class="tab" :class="choose === index ? `choose_tab` : ''" v-for="(item, index) in tabs" :key="index" @click="chooseTab(index)">{{item}}</div>
       </div>
@@ -22,7 +22,7 @@
             </div>
             <div class="course_btn">
               <div class="upload_course" @click="$router.push(`/upload_course?courseId=${courseId}`)">上传教案</div>
-              <div class="end_course">结束上课</div>
+              <div class="end_course" @click="endClass(index)">结束上课</div>
             </div>
           </div>
         </div>
@@ -47,6 +47,7 @@
 
 <script lang="ts">
   import { Component, Vue } from 'vue-property-decorator'
+  import { Dialog } from 'vant'
   @Component({
     components: {
       Canlendar: () => import('../../components/Canlendar.vue')
@@ -71,7 +72,7 @@
   export default class CoachCourse extends Vue {
     private choose: number = 0;
     private tabs: string[] = ['即将开始', '全部'];
-    private waitList: any[] = [];
+    private waitList: any[] = null;
     private monthClass: any[] = [];
     private pageShow: boolean = false;
     private nowDate: string = '';
@@ -79,11 +80,16 @@
     private searchList: any[] = [];
 
     protected created(): void {
-      this.$store.commit('saveUserid', 64);
-      this.getList();
-      const time = new Date();
-      this.nowDate = `${time.getFullYear()}-${time.getMonth() + 1}-01`;
-      this.searchDate = `${time.getFullYear()}-${time.getMonth() + 1}-${time.getDate()}`
+      // this.$store.commit('saveUserid', 84);
+      if (!this.$store.state.userid) {
+        const url = encodeURIComponent(location.href);
+        window.location.href = `https://open.weixin.qq.com/connect/oauth2/authorize?appid=wx0e734c0a8f759921&redirect_uri=${url}&response_type=code&scope=snsapi_userinfo#wechat_redirect`;
+      } else { 
+        this.getList();
+        const time = new Date();
+        this.nowDate = `${time.getFullYear()}-${time.getMonth() + 1}-01`;
+        this.searchDate = `${time.getFullYear()}-${time.getMonth() + 1}-${time.getDate()}`
+      }
     }
     private chooseTab(index: number): void {
       this.pageShow = false;
@@ -155,20 +161,29 @@
         this.$toast.fail(error);
       }
     }
-    private async endClass(): Promise<any> {
-      this.$toast.loading();
-      try {
-        const obj = await this.$api({
-          url: '/course/finshCourse',
-          data: {
-            // courseId: ,
-            // coachId: ,
-          }
-        });
-        this.$toast.clear();
-      } catch(error) {
-        this.$toast.fail(error);
-      }
+    private endClass(index: number): void {
+      const { coach_id, courseId } = this.waitList[index];
+      Dialog.confirm({
+        title: '结束上课',
+        message: '是否确认结束上课',
+      }).then( async() => {
+        try {
+          this.$toast.loading();
+          await this.$api({
+            url: '/course/finshCourse',
+            data: {
+              courseId: courseId,
+              coachId: coach_id,
+            }
+          });
+          this.waitList.splice(index, 1);
+          this.$toast('结束成功');
+        } catch(error) {
+          this.$toast.fail(error);
+        }
+      })
+      .catch(() => {
+      });
     }
   }
 </script>
@@ -222,7 +237,7 @@
         font-weight: 500;
         line-height: 20px;
         text-align: center;
-        border-radius: 0 0 8px 0;
+        border-radius: 8px 0 8px 0;
         background-color: #ff9879;
       }
       .content {
@@ -231,7 +246,8 @@
         align-items: flex-start;
         justify-content: space-between;
         .course_info {
-          padding: 0 15px;
+          width: 130px;
+          padding-left: 15px;
           .course_name {
             font-size: 14px;
             font-weight: bold;

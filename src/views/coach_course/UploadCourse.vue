@@ -4,6 +4,7 @@
       <div class="add_wrapper">
         <van-icon class="add_btn" name="plus" size="24" @click="popType = 0;addShow = true" />
       </div>
+      <van-empty v-if="courseList.length === 0" description="点击右上角添加" />
       <div v-if="courseShow" class="course_wrapper">
         <div class="every_course" v-for="({infos, stage, title, trainTime}, index) in courseList" :key="index">
           <div class="short_lable">教学标题：{{title}}</div>
@@ -18,7 +19,7 @@
     <van-popup v-model="addShow" round :close-on-click-overlay="false" style="height: 70%;width: 90%">
       <div class="add_box">
         <div class="title">{{popType === 0 ? '增加教案' : '修改教案'}}</div>
-        <van-field v-model="teachingPlanId" label="教案编号" required />
+        <van-field v-model="teachingPlanId" label="教案编号" required readonly />
         <van-field v-model="modelName" label="教案模板" placeholder="选择教案模板" readonly  @click="getModel" />
         <van-field v-model="modelTitle" label="教学标题" placeholder="请输入标题" />
         <van-field v-model="modelTime" label="教学时长" placeholder="请输入 例：15min" />
@@ -58,7 +59,7 @@
 
 <script lang="ts">
   import { Component, Vue } from 'vue-property-decorator'
-  import { Icon, Popup, Field, Picker, Stepper, Dialog } from 'vant'
+  import { Icon, Popup, Field, Picker, Stepper, Dialog, Empty } from 'vant'
   @Component({
     components: {
       [Icon.name]: Icon,
@@ -66,6 +67,7 @@
       [Field.name]: Field,
       [Picker.name]: Picker,
       [Stepper.name]: Stepper,
+      [Empty.name]: Empty,
     }
   })
   export default class UploadCourse extends Vue {
@@ -87,9 +89,10 @@
     private teachingPlanId: number = null; 
     private id: number = null;
     private coachId: number = null;
+    private courseIndex: number = null;
 
     protected created(): void {
-      this.$store.commit('saveUserid', 64);
+      // this.$store.commit('saveUserid', 84);
       this.getCourseList();
     }
     private chooseModel(model: any, index: number): void {
@@ -145,7 +148,7 @@
       }
     }
     private async addSubmit(): Promise<any> {
-      const { popType, modelName, modelTitle, modelGood, modelContent, modelTime, modelIndex, modelId, teachingPlanId, id, coachId } = this;
+      const { popType, modelName, modelTitle, modelGood, modelContent, modelTime, modelIndex, modelId, teachingPlanId, id, coachId, courseIndex } = this;
       const item = {
         coachId: coachId,
         id: id,
@@ -159,52 +162,59 @@
         trainTime: modelTime,
       }
       this.$toast.loading();
-      try {
-        if (popType === 0) { //新增
-          // await this.$api({
-          //   url: '/teachingPlanInfo/addTeachingPlanInfo',
-          //   data: {
-          //     teachingPlanId: teachingPlanId,
-          //     teachingMudleId: modelId,
-          //     coachId: coachId,
-          //     title: modelTitle,
-          //     stage: modelGood,
-          //     infos: modelContent,
-          //     sort: modelIndex,
-          //     trainTime: modelTime,
-          //     status: 1
-          //   }
-          // });
-          for (const key in this.courseList) {
-            if (this.courseList[Number(key)].sort > modelIndex) {
-              this.courseList.splice(Number(key), 0, item);
-            } else {
-              this.courseList.splice(modelIndex, 0, item);
-              break
-            }
+      if (modelName && modelTime && modelGood && modelTitle && modelContent) {
+        try {
+          if (popType === 0) { //新增
+            await this.$api({
+              url: '/teachingPlanInfo/addTeachingPlanInfo',
+              data: {
+                teachingPlanId: teachingPlanId,
+                teachingMudleId: modelId,
+                coachId: coachId,
+                title: modelTitle,
+                stage: modelGood,
+                infos: modelContent,
+                sort: modelIndex,
+                trainTime: modelTime,
+                status: 1
+              }
+            });
+            // for (const key in this.courseList) {
+            //   if (this.courseList[Number(key)].sort > modelIndex) {
+            //     this.courseList.splice(Number(key), 0, item);
+            //   } else {
+            //     this.courseList.splice(modelIndex, 0, item);
+            //     break
+            //   }
+            // }
+            this.getCourseList();
+            this.$toast('上传成功');
+          } else { //修改
+            await this.$api({
+              url: '/teachingPlanInfo/updateTeachingPlanInfo',
+              data: {
+                id: id,
+                teachingPlanId: teachingPlanId,
+                teachingMudleId: modelId,
+                coachId: coachId,
+                title: modelTitle,
+                stage: modelGood,
+                infos: modelContent,
+                sort: modelIndex,
+                trainTime: modelTime,
+                status: 1
+              }
+            });
+            this.courseList.splice(courseIndex, 1, item);
+            this.$toast('修改成功');
           }
-          this.$toast('上传成功');
-        } else { //修改
-          await this.$api({
-            url: '/teachingPlanInfo/updateTeachingPlanInfo',
-            data: {
-              id: id,
-              teachingPlanId: teachingPlanId,
-              teachingMudleId: modelId,
-              coachId: coachId,
-              title: modelTitle,
-              stage: modelGood,
-              infos: modelContent,
-              sort: modelIndex,
-              trainTime: modelTime,
-              status: 1
-            }
-          });
+        } catch(error) {
+          this.$toast.fail(error);
         }
-      } catch(error) {
-        this.$toast.fail(error);
+        this.clear();
+      } else {
+        this.$toast('请完善信息')
       }
-      this.clear();
     }
     private clear(): void {
       this.addShow = false;
@@ -216,6 +226,7 @@
       this.modelIndex = 0;
     }
     private async modifyCourse(index: number): Promise<any> {
+      this.courseIndex = index;
       this.popType = 1;
       const { id, infos, stage, title, trainTime, teachingMudleId, sort } = this.courseList[index];
       this.modelName = this.modelTitle = title;
@@ -261,6 +272,7 @@
     right: 0;
     width: 100%;
     padding: 5px;
+    z-index: 200;
     position: fixed;
     text-align: right;
     background-color: #ececec;

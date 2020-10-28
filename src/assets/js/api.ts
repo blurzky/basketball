@@ -25,7 +25,7 @@ async function api({url, data, form = true, method = 'post',  headers, validateS
         return status >= 200 && status <= 400;
       }
     });
-    if ((validateStatus && !result.status) || !validateStatus) {
+    if ((validateStatus && !result.status) || !validateStatus || (result.status < 400)) {
       return Promise.resolve(result);
     } else {
       return Promise.reject(result.message || '网络开小差了，请重试~');
