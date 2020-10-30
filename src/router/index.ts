@@ -115,6 +115,15 @@ const routes: Array<RouteConfig> = [
     component: () => import('../views/coach_course/CheckCourse.vue')
   },
   {
+    path: '/sign',
+    name: 'sign',
+    meta: {
+      index: 0,
+      title: '学员签到'
+    },
+    component: () => import('../views/coach_course/Sign.vue')
+  },
+  {
     path: '/*',
     name: 'NotFind',
     meta: {

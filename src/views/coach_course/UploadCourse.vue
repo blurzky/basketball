@@ -31,8 +31,6 @@
           rows="3"
           autosize
           type="textarea"
-          maxlength="50"
-          show-word-limit
         />
         <van-field label="序号">
           <template #input>
