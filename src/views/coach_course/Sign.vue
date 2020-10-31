@@ -119,7 +119,7 @@
         });
         this.studentList = obj;
         obj.forEach((e: any) => {
-          this.nameList.push(e. uname);
+          this.nameList.push(`${e.uname}【${e.rname}】`);
         });
         this.studentShow = true;
         this.$toast.clear();
