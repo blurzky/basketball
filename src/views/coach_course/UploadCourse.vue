@@ -90,7 +90,6 @@
     private courseIndex: number = null;
 
     protected created(): void {
-      // this.$store.commit('saveUserid', 84);
       this.getCourseList();
     }
     private chooseModel(model: any, index: number): void {

@@ -16,7 +16,8 @@
               <div class="course_addr">上课人数：{{people}}人</div>
             </div>
             <div class="time_info">
-              <div>{{week}}</div>
+              <div>课程编号：{{courseId}}</div>
+              <div class="week">{{week}}</div>
               <div class="week">{{start_time+ ' - ' +end_time}}</div>
               <div class="week">{{(end_time.slice(0, 2) - start_time.slice(0, 2))*60}}分钟</div>
             </div>
@@ -243,10 +244,10 @@
       .content {
         display: flex;
         margin-top: 5px;
-        align-items: flex-start;
+        align-items: center;
         justify-content: space-between;
         .course_info {
-          width: 130px;
+          width: 30%;
           padding-left: 15px;
           .course_name {
             font-size: 14px;

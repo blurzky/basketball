@@ -36,7 +36,7 @@
                 <video v-else class="video" :src="media_url" />
               </div>
               <div @click="savePic(id, index)">
-                <van-uploader v-if="role === 2 && JSON.parse(medias).length <= 4" class="upload" accept="image/*, video/*" preview-size="70px" :after-read="upLoadImg" />
+                <van-uploader v-if="role > 1 && JSON.parse(medias).length <= 4" class="upload" accept="image/*, video/*" preview-size="70px" :after-read="upLoadImg" />
               </div>
             </div>
             <div class="devision"></div>
