@@ -16,7 +16,7 @@
           <div class="evrey_info" style="width: 25%">
             <div v-if="tpState === 2">
               <div class="has_check">已审核</div>
-              <div class="sign_person" @click="$router.push('/sign')">签到学员</div>
+              <div class="sign_person" @click="$router.push(`/sign?courseId=${courseId}`)">签到学员</div>
             </div>
             <div v-else>
               <div class="pass_btn" @click="pass(index)">通过</div>
@@ -26,12 +26,12 @@
         </div>
         <van-collapse v-if="list.length" v-model="fold">
           <van-collapse-item title="教学内容" :name="index">
-            <div v-for="({infos, sort, stage, title, trainTime}, index) in list" :key="index" class="every_corse" :style="index !== 0 ? 'paddingTop: 0' : ''">
+            <div v-for="({infos, stage, title, trainTime}, index) in list" :key="index" class="every_corse" :style="index !== 0 ? 'paddingTop: 0' : ''">
               <div class="short_lable">教学标题：{{title}}</div>
               <div class="short_lable">训练时长：{{trainTime}}</div>
               <div class="short_lable">训练道具：{{stage}}</div>
               <div>教学内容：{{infos}}</div>
-              <div class="sort">{{sort}}</div>
+              <div class="sort">{{index + 1}}</div>
             </div>
           </van-collapse-item>
         </van-collapse>
@@ -81,11 +81,12 @@
     private mark: string = '';
     private listIndex: number = null;
     protected created(): void {
-      this.$store.commit('saveUserid', 63);
       this.getList();
     }
     private async getList(): Promise<any> {
-      this.$toast.loading();
+      if (!this.$store.state.loadingStatus) {
+        this.$toast.loading();
+      }
       try {
         const obj = await this.$api({
           url: '/teachingPlan/findRectorListTp',
@@ -119,6 +120,7 @@
               mark: '',
             }
           });
+          this.objList[index].tpState = 2;
           this.$toast('通过成功');
         } catch(error) {
           this.$toast.fail(error);
@@ -141,6 +143,7 @@
             mark: this.mark,
           }
         });
+        this.objList[this.listIndex].tpState = 3;
         this.$toast('驳回成功');
       } catch(error) {
         this.$toast.fail(error);
@@ -234,12 +237,12 @@
         color: #666666;
       }
       .no_upload {
-        font-size: 10px;
+        font-size: 11px;
         color: #999999;
       }
       .notice {
         color: #fff;
-        padding: 0 20px;
+        padding: 0 15px;
         line-height: 18px;
         background-color: #f32b11;
       }
