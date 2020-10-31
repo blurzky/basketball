@@ -21,7 +21,7 @@
           </div>
         </div>
       </div>
-      <van-cell class="cell" title="上课记录" icon="notes-o" @click="$toast('功能正在开发~')" />
+      <van-cell class="cell" :title="userinfo.role > 1 ? '课程表' : '上课记录'" icon="notes-o" @click="$router.push(`/coach_course`)" />
       <van-cell v-if="userinfo.role > 2" class="cell" title="审核教案" icon="notes-o" @click="$router.push(`/check_course`)" />
       <van-cell v-if="userinfo.role === 2" class="cell" title="引流数据" icon="notes-o" @click="$router.push('./statistic')" />
       <van-cell class="cell" :title="userinfo.role === 1 ? '课程打分' :'教练评语'" :icon="userinfo.role === 1 ? 'good-job-o' : 'comment-o'" @click="$router.push(`/comment?role=${userinfo.role}`)" />
@@ -50,7 +50,7 @@
     private overTime: string = null;
     private userinfo: object = {};
     protected created(): void {
-      this.$store.commit('saveUserid', 63);
+      // this.$store.commit('saveUserid', 63);
       if (!this.$store.state.userid) {
         const url = encodeURIComponent(`${location.origin + location.pathname}`);
         window.location.href = `https://open.weixin.qq.com/connect/oauth2/authorize?appid=wx0e734c0a8f759921&redirect_uri=${url}&response_type=code&scope=snsapi_userinfo#wechat_redirect`;
