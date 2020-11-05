@@ -2,7 +2,7 @@
   <div>
     <div class="page">
       <div class="icon_box" v-if="badge.length">
-        <span>效率({{badge[3]}}%)</span>
+        <span>效率({{badge[3].toFixed(2)}}%)</span>
         <img src="./icon/calendar.png" class="icon" @click="dateShow = true" />
       </div>
       <van-tabs v-model="active" sticky color="#73a2f8" line-width="30" @change="changeTab">
@@ -69,7 +69,7 @@
     private list: any = [];
     private badge: string[] = [];
     protected created(): void {
-      // this.$store.commit('saveUserid', 63);
+      this.$store.commit('saveUserid', 84);
       this.getList();
     }
     private beforeDestroy(): void {
@@ -137,6 +137,9 @@
     position: relative;
     /deep/ .van-tabs__nav {
       width: 70%;
+    }
+    /deep/ .van-tab__text {
+      font-size: vw(14);
     }
     .clear_date {
       top: 0;

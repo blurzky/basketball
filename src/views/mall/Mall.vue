@@ -2,14 +2,14 @@
   <div>
     <div v-if="$store.state.userid" class="page">
       <van-form>
-        <van-field v-model="name" readonly class="input" maxlength="6" label="姓名" />
-        <van-field v-model="birthday" readonly class="input" label="出生年月日" right-icon="calender-o" />
+        <van-field v-model="name" readonly class="input" label="姓名" :placeholder="fromHome ? '请选择' : ''" @click="fromHome ? showPicks(7) : ''" />
+        <van-field v-model="birthday" readonly class="input" label="出生年月日" :placeholder="fromHome ? '请选择出生日期' : ''" right-icon="calender-o" @click="chooseBirth" />
         <van-field v-model="sex" readonly required class="input" label="性别" placeholder="请选择性别" @click="showPicks(1)" />
         <van-field v-model="startDay" readonly required class="input" label="开始日期" placeholder="年-月-日" right-icon="calender-o" @click="showStartDay = true" />
         <van-field v-model="weeks" readonly required class="input" label="有效周数" placeholder="请先选择产品" />
         <van-field v-model="endDay" readonly class="input" label="结束日期" right-icon="calender-o" placeholder="请先选择开始日期和产品" />
-        <van-field v-model="payWay" readonly required label="缴费性质" class="input" placeholder="请选择缴费性质" @click="showPicks(4)"/>
-        <van-field v-model="introUser" readonly label="转介绍顾客" class="input" placeholder="请选择介绍的老顾客" @click="payWayId === 4 ? getIntroUser() : $toast('非老客转介绍')"/>
+        <van-field v-model="payWay" readonly required label="缴费性质" class="input" placeholder="请选择缴费性质" @click="fromHome ? showPicks(4) : ''"/>
+        <van-field v-model="introUser" readonly label="转介绍顾客" class="input" placeholder="请选择介绍的老顾客" @click="payWayId === 4 ? getIntroUser() : fromHome ? $toast('非老客转介绍') : ''"/>
         <van-field v-model="presentClass" readonly class="input" label="获赠课程" placeholder="请填写老客获得赠送课程(节)" />
         <van-field
           v-model="tel"
@@ -53,12 +53,23 @@
           @cancel="showStartDay = false"
         />
       </van-popup>
+      <van-popup v-model="showBirth" position="bottom">
+        <van-datetime-picker
+          v-model="currentBirthDate"
+          type="date"
+          title="选择出生日期"
+          :min-date="minBirthDate"
+          :max-date="maxBirthDate"
+          @confirm="chooseBirthDay"
+          @cancel="showBirth = false"
+        />
+      </van-popup>
       <van-popup v-model="showPicker" position="bottom">
         <van-picker
           show-toolbar
           :columns="columns"
           @confirm="choosePicker"
-          @cancel="showPicker === false"
+          @cancel="showPicker = false"
         />
       </van-popup>
       <van-popup v-model="showPickClass" class="check_popup" position="bottom" :style="{ height: '50%' }">
@@ -89,12 +100,17 @@
     }
   })
   export default class Mall extends Vue {
+    private fromHome: boolean = false;
+    private showBirth: boolean = false;
     private showStartDay: boolean = false;
     private showPicker: boolean = false;
     private showPickClass: boolean = false;
     private pickIndex: number = null;
     private minStartDate: object = new Date();
     private currentStartDate: object = null;
+    private currentBirthDate: object = null;
+    private minBirthDate: object = new Date(2000, 0, 1);
+    private maxBirthDate: object = new Date();
     private name: any = null;
     private birthday: any = null;
     private sex: string = null;
@@ -102,7 +118,7 @@
     private weeks: any = null;
     private endDay: string = null;
     private tel: string = null;
-    private payWay: string = null;
+    private payWay: any = null;
     private introUser: any = null;
     private presentClass: any = null;
     private goods: string = null;
@@ -125,21 +141,27 @@
     private classIdList: any[] = [];
     private myChooseClass: string[] = [];
     private myChooseClassId: any[] = [];
+    private nameList: any[] = [];
     private goodsIndex: number = null;
     private limitClassNum: number = null;
     protected created(): void {
-      // this.$store.commit('saveUserid', 65);
+      // this.$store.commit('saveUserid', 63);
       if (!this.$store.state.userid) {
         const url = encodeURIComponent(location.href);
         window.location.href = `https://open.weixin.qq.com/connect/oauth2/authorize?appid=wx0e734c0a8f759921&redirect_uri=${url}&response_type=code&scope=snsapi_userinfo#wechat_redirect`;
       } else {
         this.getGoodList();
-        const { name, birthday, inviteName, giveCourse, inviteUser } = this.$route.query;
+        const { name, birthday, inviteName, giveCourse, inviteUser, paymenttype } = this.$route.query;
         this.name = name;
         this.birthday = birthday;
         this.introUser = inviteName;
         this.presentClass = giveCourse;
         this.introUserId = inviteUser;
+        this.payWay = paymenttype;
+        if (Number(this.$route.query.home) === 11) {
+          this.fromHome = true;
+          this.getName();
+        }
       }
     }
     private async submitRes(): Promise<any> {
@@ -186,6 +208,10 @@
       if (this.goods) this.getEndDay();
       this.showStartDay = false;
     }
+    private chooseBirthDay(e: any): void {
+      this.birthday = `${e.getFullYear()}-${e.getMonth() < 9 ? `0` : ``}${e.getMonth() + 1}-${e.getDate() < 10 ? `0` : ``}${e.getDate()}`;
+      this.showBirth = false;
+    }
     private showPicks(e: number): void {
       this.columns = [];
       this.pickIndex = e;
@@ -205,6 +231,10 @@
         this.getMoneyPersonList.forEach((e) => {
           this.columns.push(e.username);
         });
+      } else if (e === 7) {
+        this.nameList.forEach((e: any) => {
+          this.columns.push(e.rname);
+        })
       }
       this.showPicker = true;
     }
@@ -226,9 +256,12 @@
       } else if (this.pickIndex === 5) {
         this.introUser = e;
         this.introUserId = this.introUserList[index].userid;
-      } else {
+      } else if (this.pickIndex === 6) {
         this.getMoneyPerson = e;
         this.getMoneyPersonId = this.getMoneyPersonList[index].user_id;
+      } else if (this.pickIndex === 7) {
+        this.name = this.nameList[index].uname;
+        this.tel = this.nameList[index].tel;
       }
       this.showPicker = false;
     }
@@ -246,6 +279,11 @@
         this.classes += this.classesList[e];
         this.myChooseClassId.push({id: this.classIdList[e]});
       })
+    }
+    private chooseBirth(): void {
+      if (this.fromHome) {
+        this.showBirth = true;
+      }
     }
     private async getGoodList(): Promise<any> {
       try {
@@ -329,6 +367,19 @@
         this.pickIndex = 5;
         this.$toast.clear();
         this.showPicker = true;
+      } catch (error) {
+        this.$toast.fail(error);
+      }
+    }
+    private async getName(): Promise<any> {
+      try {
+        const obj = await this.$api({
+          url: '/beeagleUsers/findBeaagleUsersByRector',
+          data: {
+            userid: this.$store.state.userid
+          }
+        })
+        this.nameList = obj;
       } catch (error) {
         this.$toast.fail(error);
       }
