@@ -2,14 +2,19 @@
   <div>
     <div v-if="$store.state.userid" class="page">
       <van-form>
-        <van-field v-model="name" readonly class="input" label="姓名" :placeholder="fromHome ? '请选择' : ''" @click="fromHome ? showPicks(7) : ''" />
+        <div class="name_box">
+          <van-field v-model="name" :readonly="!fromHome" class="input" label="姓名" :placeholder="fromHome ? '请输入' : ''" @input="getName" />
+          <div v-if="nameShow" class="thinking_box">
+            <van-cell :value="rname" :border="false" v-for="({rname, tel, uname, userid}, index) in nameList" :key="index" @click="chooseName(tel, uname, userid)" />
+          </div>
+        </div>
         <van-field v-model="birthday" readonly class="input" label="出生年月日" :placeholder="fromHome ? '请选择出生日期' : ''" right-icon="calender-o" @click="chooseBirth" />
         <van-field v-model="sex" readonly required class="input" label="性别" placeholder="请选择性别" @click="showPicks(1)" />
         <van-field v-model="startDay" readonly required class="input" label="开始日期" placeholder="年-月-日" right-icon="calender-o" @click="showStartDay = true" />
         <van-field v-model="weeks" readonly required class="input" label="有效周数" placeholder="请先选择产品" />
         <van-field v-model="endDay" readonly class="input" label="结束日期" right-icon="calender-o" placeholder="请先选择开始日期和产品" />
-        <van-field v-model="payWay" readonly required label="缴费性质" class="input" placeholder="请选择缴费性质" @click="fromHome ? showPicks(4) : ''"/>
-        <van-field v-model="introUser" readonly label="转介绍顾客" class="input" placeholder="请选择介绍的老顾客" @click="payWayId === 4 ? getIntroUser() : fromHome ? $toast('非老客转介绍') : ''"/>
+        <van-field v-model="payWay" readonly required label="缴费性质" class="input" placeholder="请选择缴费性质" @click="fromHome ? showPicks(4) : null"/>
+        <van-field v-model="introUser" readonly label="转介绍顾客" class="input" placeholder="请选择介绍的老顾客" @click="payWayId === 4 ? getIntroUser() : fromHome ? $toast('非老客转介绍') : null"/>
         <van-field v-model="presentClass" readonly class="input" label="获赠课程" placeholder="请填写老客获得赠送课程(节)" />
         <van-field
           v-model="tel"
@@ -86,9 +91,10 @@
 
 <script lang="ts">
   import { Component, Vue } from 'vue-property-decorator'
-  import { Button, DatetimePicker, Form, Field, Popup, Picker, Checkbox, CheckboxGroup } from 'vant'
+  import { Cell, Button, DatetimePicker, Form, Field, Popup, Picker, Checkbox, CheckboxGroup } from 'vant'
   @Component({
     components: {
+      [Cell.name]: Cell,
       [Button.name]: Button,
       [DatetimePicker.name]: DatetimePicker,
       [Form.name]: Form,
@@ -100,6 +106,7 @@
     }
   })
   export default class Mall extends Vue {
+    private nameShow: boolean = false;
     private fromHome: boolean = false;
     private showBirth: boolean = false;
     private showStartDay: boolean = false;
@@ -111,6 +118,7 @@
     private currentBirthDate: object = null;
     private minBirthDate: object = new Date(2000, 0, 1);
     private maxBirthDate: object = new Date();
+    private userid: string = null;
     private name: any = null;
     private birthday: any = null;
     private sex: string = null;
@@ -151,16 +159,15 @@
         window.location.href = `https://open.weixin.qq.com/connect/oauth2/authorize?appid=wx0e734c0a8f759921&redirect_uri=${url}&response_type=code&scope=snsapi_userinfo#wechat_redirect`;
       } else {
         this.getGoodList();
-        const { name, birthday, inviteName, giveCourse, inviteUser, paymenttype } = this.$route.query;
+        const { name, birthday, inviteName, giveCourse, inviteUser, paymenttype, home } = this.$route.query;
         this.name = name;
         this.birthday = birthday;
         this.introUser = inviteName;
         this.presentClass = giveCourse;
         this.introUserId = inviteUser;
         this.payWay = paymenttype;
-        if (Number(this.$route.query.home) === 11) {
+        if (Number(home) === 11) {
           this.fromHome = true;
-          this.getName();
         }
       }
     }
@@ -185,7 +192,7 @@
               money: reallyMoney,
               payee: getMoneyPersonId,
               sex: sex === '男' ? 1 : 2,
-              userid: this.$route.query.userid,
+              userid: this.$route.query.userid || this.userid,
               inviteUser: introUserId,
               giveCourse: presentClass.split(' ')[0],
               courseEtc: myChooseClassId,
@@ -231,10 +238,6 @@
         this.getMoneyPersonList.forEach((e) => {
           this.columns.push(e.username);
         });
-      } else if (e === 7) {
-        this.nameList.forEach((e: any) => {
-          this.columns.push(e.rname);
-        })
       }
       this.showPicker = true;
     }
@@ -259,9 +262,6 @@
       } else if (this.pickIndex === 6) {
         this.getMoneyPerson = e;
         this.getMoneyPersonId = this.getMoneyPersonList[index].user_id;
-      } else if (this.pickIndex === 7) {
-        this.name = this.nameList[index].uname;
-        this.tel = this.nameList[index].tel;
       }
       this.showPicker = false;
     }
@@ -372,17 +372,30 @@
       }
     }
     private async getName(): Promise<any> {
-      try {
-        const obj = await this.$api({
-          url: '/beeagleUsers/findBeaagleUsersByRector',
-          data: {
-            userid: this.$store.state.userid
-          }
-        })
-        this.nameList = obj;
-      } catch (error) {
-        this.$toast.fail(error);
+      if (this.name) {
+        this.nameShow = true;
+        try {
+          const obj = await this.$api({
+            url: '/beeagleUsers/findBeaagleUsersByRector',
+            data: {
+              userid: this.$store.state.userid,
+              value: this.name
+            }
+          });
+          this.nameList = obj;
+        } catch (error) {
+          this.$toast.fail(error);
+        }
+      } else {
+        this.nameShow = false;
+        this.nameList = null;
       }
+    }
+    private chooseName(tel: string, name: string, userid: string): void {
+      this.name = name;
+      this.tel = tel;
+      this.userid = userid;
+      this.nameShow = false;
     }
   }
 </script>
@@ -390,6 +403,23 @@
 <style lang="scss" scoped>
   .page {
     padding: 20px 10px;
+    .name_box {
+      position: relative;
+      .thinking_box {
+        top: 44px;
+        left: 80px;
+        z-index: 99;
+        overflow: hidden;
+        max-height: 300px;
+        overflow-y: scroll;
+        position: absolute;
+        box-sizing: border-box;
+        width: calc(100% - 80px);
+        border: 1px solid #d8d8d8;
+        border-top: none;
+        border-radius: 0 0 14px 14px;
+      }
+    }
     .input {
       margin-bottom: 20px;
     }
