@@ -62,6 +62,9 @@
           url: `/courseRema/findById?userid=${this.$store.state.userid}`,
           method: 'get',
         })
+        if (beeagleUsers.role > 1) {
+          this.$router.replace('/worker_page');
+        }
         this.formatOverTime(vipOutTime);
         this.classList.push(remaSum, buySum - remaSum, remaWeek);
         this.userinfo = beeagleUsers;
