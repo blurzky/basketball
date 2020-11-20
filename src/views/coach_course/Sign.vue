@@ -83,7 +83,6 @@
     private notice: string = '';
     private size: number = 0;
     protected created(): void {
-      this.$store.commit('saveUserid', 64);
       this.courseId = Number(this.$route.query.courseId);
       this.getList();
     }

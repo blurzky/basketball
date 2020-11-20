@@ -25,6 +25,15 @@ const routes: Array<RouteConfig> = [
     component: () => import('../views/my_page/Mypage.vue')
   },
   {
+    path: '/worker_page',
+    name: 'worker_page',
+    meta: {
+      index: 0,
+      title: '员工主页'
+    },
+    component: () => import('../views/my_page/WorkerPage.vue')
+  },
+  {
     path: '/comment',
     name: 'Comment',
     meta: {

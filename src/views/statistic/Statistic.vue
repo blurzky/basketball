@@ -69,7 +69,6 @@
     private list: any = [];
     private badge: string[] = [];
     protected created(): void {
-      this.$store.commit('saveUserid', 84);
       this.getList();
     }
     private beforeDestroy(): void {
