@@ -21,8 +21,8 @@
       </div>
       <van-cell class="cell" title="课程表" icon="notes-o" @click="$router.push(`/coach_course`)" />
       <van-cell class="cell" title="审核教案" icon="notes-o" @click="$router.push(`/check_course`)" />
-      <van-cell class="cell" title="引流数据" icon="notes-o" @click="$router.push('./statistic')" />
-      <van-cell class="cell" title="缴费上报" icon="shopping-cart-o" @click="$router.push('./mall?home=11')" />
+      <van-cell class="cell" title="引流数据" icon="notes-o" @click="$router.push('/statistic')" />
+      <van-cell class="cell" title="缴费上报" icon="shopping-cart-o" @click="$router.push('/mall?home=11')" />
       <van-cell class="cell" title="课程打分" icon="good-job-o" @click="$router.push(`/comment?role=1}`)" />
       <van-cell class="cell" title="教练评语" icon="comment-o" @click="$router.push(`/comment?role=${userinfo.role}`)" />
       <van-cell class="cell" title="分享比高" icon="ellipsis" @click="isShow = true" />
