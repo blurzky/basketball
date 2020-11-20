@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div v-if="$store.state.userid" class="page">
+    <div v-if="userinfo.userid" class="page">
       <div class="top">
         <div class="info">
           <img :src="userinfo.head">
@@ -46,7 +46,7 @@
     private classList: number[] = [];
     private isShow: boolean = false;
     private overTime: string = null;
-    private userinfo: object = {};
+    private userinfo: object = null;
     protected created(): void {
       // this.$store.commit('saveUserid', 84);
       if (!this.$store.state.userid) {
@@ -76,9 +76,6 @@
       } catch (error) {
         this.$toast.fail(`${error}`);
       }
-    }
-    private setting(): void {
-
     }
     private formatOverTime(e: number): void {
       const time = new Date(e);
