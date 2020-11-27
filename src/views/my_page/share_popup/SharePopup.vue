@@ -24,43 +24,43 @@
 </script>
 
 <style lang="scss" scoped>
-  .loading-enter, .loading-leave-active {
-    opacity: 0;
+.loading-enter, .loading-leave-active {
+  opacity: 0;
+}
+.pop{
+  top: 0;
+  left: 0;
+  z-index: 99;
+  width: 100vw;
+  display: flex;
+  position: fixed;
+  min-height: 100vh;
+  align-items: center;
+  justify-content: center;
+  transition: opacity .3s;
+  background-color: #00000085;
+  .arrow {
+    top: 10px;
+    right: 40px;
+    width: 80px;
+    object-fit: cover;
+    position: absolute;
   }
-  .pop{
-    top: 0;
-    left: 0;
-    z-index: 99;
-    width: 100vw;
-    display: flex;
-    position: fixed;
-    min-height: 100vh;
-    align-items: center;
-    justify-content: center;
-    transition: opacity .3s;
-    background-color: #00000085;
-    .arrow {
-      top: 10px;
-      right: 40px;
+  .box {
+    color: #fff;
+    font-size: 16px;
+    text-align: center;
+    .title {
+      margin-bottom: 20px;
+    }
+    .close_btn {
       width: 80px;
-      object-fit: cover;
-      position: absolute;
-    }
-    .box {
-      color: #fff;
-      font-size: 16px;
-      text-align: center;
-      .title {
-        margin-bottom: 20px;
-      }
-      .close_btn {
-        width: 80px;
-        margin: 0 auto;
-        font-size: 14px;
-        line-height: 30px;
-        border-radius: 20px;
-        border: 1px solid #fff;
-      }
+      margin: 0 auto;
+      font-size: 14px;
+      line-height: 30px;
+      border-radius: 20px;
+      border: 1px solid #fff;
     }
   }
+}
 </style>

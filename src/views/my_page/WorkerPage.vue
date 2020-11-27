@@ -25,10 +25,8 @@
       <van-cell class="cell" title="缴费上报" icon="shopping-cart-o" @click="$router.push('/mall?home=11')" />
       <van-cell class="cell" title="课程打分" icon="good-job-o" @click="$router.push(`/comment?role=1}`)" />
       <van-cell class="cell" title="教练评语" icon="comment-o" @click="$router.push(`/comment?role=${userinfo.role}`)" />
-      <van-cell class="cell" title="分享比高" icon="ellipsis" @click="isShow = true" />
-      <a href="tel: 13540497299"><van-cell class="cell" title="联系客服" icon="service-o" /></a>
+      <van-cell class="cell" title="我的二维码" icon="scan" @click="$router.push(`/qr_code`)" />
     </div>
-    <share-popup v-if="isShow" :isShow.sync="isShow" />
   </div>
 </template>
 
@@ -40,11 +38,9 @@
       [Button.name]: Button,
       [Icon.name]: Icon,
       [Cell.name]: Cell,
-      SharePopup: () => import('./share_popup/SharePopup.vue')
     }
   })
   export default class WorkerPage extends Vue {
-    private isShow: boolean = false;
     private overTime: string = null;
     private userinfo: object = {};
     protected created(): void {
@@ -73,48 +69,50 @@
 </script>
 
 <style lang="scss" scoped>
-  .page {
-    .top {
-      padding: 20px;
-      background-color: #383838;
-      .info {
-        display: flex;
-        align-items: center;
-        word-break: break-all;
-        justify-content: flex-start;
-        &>img {
-          width: 66px;
-          height: 66px;
-          object-fit: cover;
-          border-radius: 50%;
+.page {
+  .top {
+    padding: 20px;
+    background-color: #383838;
+    .info {
+      display: flex;
+      align-items: center;
+      word-break: break-all;
+      justify-content: flex-start;
+      &>img {
+        width: 66px;
+        height: 66px;
+        object-fit: cover;
+        border-radius: 50%;
+      }
+      .middle {
+        flex: 1;
+        margin-left: 15px;
+        color: #fff;
+        .name {
+          font-size: 18px;
+          font-weight: 500;
         }
-        .middle {
-          color: #fff;
-          margin: 0 vw(20);
-          .name {
-            font-size: 18px;
-            font-weight: 500;
+        .position {
+          display: flex;
+          margin-top: 15px;
+          align-items: center;
+          justify-content: flex-start;
+          &>span {
+            margin-left: 5px;
           }
-          .position {
-            display: flex;
-            margin-top: 15px;
-            align-items: center;
-            justify-content: flex-start;
-            &>span {
-              margin-left: 5px;
-            }
-          }
-        }
-        .right {
-          color: #fff;
-          font-size: 14px;
-          padding: vw(10) 0;
-          align-self: flex-start;
         }
       }
-    }
-    .cell {
-      margin-top: 12px;
+      .right {
+        width: 80px;
+        color: #fff;
+        font-size: 14px;
+        padding: vw(10) 0;
+        align-self: flex-start;
+      }
     }
   }
+  .cell {
+    margin-top: 12px;
+  }
+}
 </style>
