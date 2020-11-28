@@ -52,7 +52,7 @@
           url: '/course/findCourseInfoById',
           data: {
             courseId: this.$route.query.courseId,
-            userid: this.$store.state.userid || 69
+            userid: this.$store.state.userid
           }
         });
         this.info = obj;
@@ -70,7 +70,7 @@
             url: '/courseStudent/updateCourseStudent',
             data: {
               courseId: this.$route.query.courseId,
-              userid: this.$store.state.userid || 69,
+              userid: this.$store.state.userid,
               state: type,
               remark: this.message
             }
