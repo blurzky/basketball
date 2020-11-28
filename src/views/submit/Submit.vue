@@ -39,7 +39,7 @@
     private message: string = '';
     private info: any = null;
     protected created(): void {
-      if (this.$store.state.userid) {
+      if (!this.$store.state.userid) {
         const url = encodeURIComponent(location.href);
         window.location.href = `https://open.weixin.qq.com/connect/oauth2/authorize?appid=wx0e734c0a8f759921&redirect_uri=${url}&response_type=code&scope=snsapi_userinfo#wechat_redirect`;
       } else {
