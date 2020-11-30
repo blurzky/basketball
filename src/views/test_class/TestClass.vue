@@ -1,6 +1,5 @@
 <template>
   <div>
-    <img src="./icon/bg.jpg" v-if="$store.state.userid" class="showcard"/>
     <div v-if="$store.state.userid" class="page">
       <van-form>
         <van-field
@@ -182,15 +181,17 @@
       this.currentDate = new Date(year - 3, month, day);
     }
     private async getway(): Promise<any> {
+      const {owner} = this.$route.query;
       const obj = await this.$api({
-        url: '/courseMudle/findTrialCourseMudle',
+        url: `/courseMudle/findTrialCourseMudle?owner=${owner}`,
         method: 'get',
       })
       this.wayList = obj;
     }
     private async getPlace(): Promise<any> {
+      const {owner} = this.$route.query;
       const obj = await this.$api({
-        url: '/beeagleUsers/findAddrList',
+        url: `/beeagleUsers/findAddrList?owner=${owner}`,
         method: 'get',
       })
       this.placeList = obj;
@@ -360,11 +361,6 @@
 </script>
 
 <style lang="scss" scoped>
-  .showcard {
-    width: 100%;
-    height: vw(250);
-    object-fit: cover;
-  }
   .page {
     padding: 20px 12px;
     .title {

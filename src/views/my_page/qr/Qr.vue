@@ -21,7 +21,7 @@
       Popup: () => import('./QrCodePopup.vue')
     }
   })
-  export default class QrCode extends Vue {
+  export default class Qr extends Vue {
     private saveShow: boolean = false;
     private info: any = null;
     protected created(): void {

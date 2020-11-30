@@ -153,7 +153,6 @@
     private goodsIndex: number = null;
     private limitClassNum: number = null;
     protected created(): void {
-      // this.$store.commit('saveUserid', 63);
       if (!this.$store.state.userid) {
         const url = encodeURIComponent(location.href);
         window.location.href = `https://open.weixin.qq.com/connect/oauth2/authorize?appid=wx0e734c0a8f759921&redirect_uri=${url}&response_type=code&scope=snsapi_userinfo#wechat_redirect`;
@@ -287,8 +286,9 @@
     }
     private async getGoodList(): Promise<any> {
       try {
+        const {owner, school} = this.$route.query;
         const obj = await this.$api({
-          url: '/courseMudle/findBuyCourseMudle',
+          url: `/courseMudle/findBuyCourseMudle?owner=${owner}&school=${school}`,
           method: 'get'
         })
         this.goodsList = obj;
@@ -320,8 +320,9 @@
       this.getGetMoneyPerson();
     }
     private async getGetMoneyPerson(): Promise<any> {
+      const {owner, school} = this.$route.query;
       const obj = await this.$api({
-        url: '/coursePayUser/findRector',
+        url: `/coursePayUser/findRector?owner=${owner}&school=${school}`,
         method: 'get',
       })
       this.getMoneyPersonList = obj;
@@ -331,8 +332,9 @@
       if (!this.classesList.length) {
         this.$toast.loading({duration: 0});
         try {
+          const {owner, school} = this.$route.query;
           const obj = await this.$api({
-            url: `/courseEtc/findRemaCourseByBirthDay?birthday=${this.birthday}`,
+            url: `/courseEtc/findRemaCourseByBirthDay?birthday=${this.birthday}&owner=${owner}&school=${school}`,
             method: 'get'
           })
           obj.forEach((e: any) => {

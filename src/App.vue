@@ -32,6 +32,7 @@
             url: '/beeagleUsers/findByGoid',
             data: {
               code,
+              owner: this.$route.query.owner || '',
               invite_user: this.$route.query.inviteUser || 0
             }
           });
@@ -60,6 +61,7 @@
     display: flex;
     min-height: 100vh;
     align-items: center;
+    box-sizing: border-box;
     flex-direction: column;
     justify-content: flex-start;
     .page {

@@ -133,13 +133,22 @@ const routes: Array<RouteConfig> = [
     component: () => import('../views/coach_course/Sign.vue')
   },
   {
-    path: '/qr_code',
-    name: 'qr_code',
+    path: '/qr',
+    name: 'qr',
     meta: {
       index: 0,
       title: '我的二维码'
     },
-    component: () => import('../views/my_page/qr_code/QrCode.vue')
+    component: () => import('../views/my_page/qr/Qr.vue')
+  },
+  {
+    path: '/my_qr',
+    name: 'my_qr',
+    meta: {
+      index: 0,
+      title: '我的二维码'
+    },
+    component: () => import('../views/my_page/my_qr/MyQr.vue')
   },
   {
     path: '/*',

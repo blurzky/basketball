@@ -19,13 +19,14 @@
           <div class="right">{{userinfo.job}}</div>
         </div>
       </div>
-      <van-cell class="cell" title="课程表" icon="notes-o" @click="$router.push(`/coach_course`)" />
-      <van-cell class="cell" title="审核教案" icon="notes-o" @click="$router.push(`/check_course`)" />
-      <van-cell class="cell" title="引流数据" icon="notes-o" @click="$router.push('/statistic')" />
-      <van-cell class="cell" title="缴费上报" icon="shopping-cart-o" @click="$router.push('/mall?home=11')" />
-      <van-cell class="cell" title="课程打分" icon="good-job-o" @click="$router.push(`/comment?role=1}`)" />
-      <van-cell class="cell" title="教练评语" icon="comment-o" @click="$router.push(`/comment?role=${userinfo.role}`)" />
-      <van-cell class="cell" title="我的二维码" icon="scan" @click="$router.push(`/qr_code`)" />
+      <van-cell v-if="menus.includes(1)" class="cell" title="课程表" icon="notes-o" @click="$router.push(`/coach_course`)" />
+      <van-cell v-if="menus.includes(2)" class="cell" title="审核教案" icon="notes-o" @click="$router.push(`/check_course`)" />
+      <van-cell v-if="menus.includes(3)" class="cell" title="引流数据" icon="notes-o" @click="$router.push('/statistic')" />
+      <van-cell v-if="menus.includes(4)" class="cell" title="缴费上报" icon="shopping-cart-o" @click="$router.push('/mall?home=11')" />
+      <van-cell v-if="menus.includes(5)" class="cell" title="课程打分" icon="good-job-o" @click="$router.push(`/comment?role=1}`)" />
+      <van-cell v-if="menus.includes(6)" class="cell" title="教练评语" icon="comment-o" @click="$router.push(`/comment?role=${userinfo.role}`)" />
+      <van-cel v-if="menus.includes(7)" class="cell" title="我的二维码" icon="scan" @click="$router.push(`/qr`)" />
+      <van-cell v-if="menus.includes(8)" class="cell" title="我的二维码" icon="scan" @click="$router.push(`/my_qr`)" />
     </div>
   </div>
 </template>
@@ -43,12 +44,13 @@
   export default class WorkerPage extends Vue {
     private overTime: string = null;
     private userinfo: object = {};
+    private menus: string[] = [];
     protected created(): void {
       this.getInfo();
     }
     private async getInfo(): Promise<any> {
       try {
-        const { worker } = await this.$api({
+        const { worker, menus } = await this.$api({
           url: `/courseRema/findById?userid=${this.$store.state.userid}`,
           method: 'get',
         })
@@ -56,6 +58,7 @@
           this.formatOverTime(worker.entryTime);
         }
         this.userinfo = worker;
+        this.menus = menus;
         this.$store.commit('setLoadingStatus', false);
       } catch (error) {
         this.$toast.fail(`${error}`);
