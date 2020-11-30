@@ -2,8 +2,8 @@
   <div v-if="info" class="qr_code">
     <div class="img_box" id="qr_code">
       <img class="code_img" :src="info.qrcode" />
-      <div class="connect">联系电话：{{info.uname}} {{info.tel}}</div>
-      <div class="address">训练地址：{{info.addr}}</div>
+      <div class="connect" v-if="info.uname && info.tel">联系电话：{{info.uname}} {{info.tel}}</div>
+      <div class="address" v-if="info.addr">训练地址：{{info.addr}}</div>
     </div>
     <div class="btns">
       <van-button plain color="#6639b8" :hairline="true" round @click="saveShow = true">保存至相册</van-button>

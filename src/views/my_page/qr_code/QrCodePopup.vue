@@ -38,11 +38,15 @@
         const url2 = await this.loadImage(qrcode);
         this.getImg(ctx, url2, 535, 1770, 300, 300);
         //文字
-        this.font(ctx, 45, `联系电话：${uname} ${tel}`, 330, 2180);
-        if (addr.length > 15) {
+        if (uname && tel) {
+          this.font(ctx, 45, `联系电话：${uname} ${tel}`, 330, 2180);
+        }
+        if (addr) {
+          if (addr.length > 15) {
           this.font(ctx, 45, `训练地址：${addr.substring(0,20)}...`, 330, 2330);
-        } else {
-          this.font(ctx, 45, `训练地址：${addr}`, 330, 2300);
+          } else {
+            this.font(ctx, 45, `训练地址：${addr}`, 330, 2300);
+          }
         }
         //导出base64路径
         this.myImg = ctx.canvas.toDataURL();
