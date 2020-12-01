@@ -155,11 +155,11 @@
     private owner: any = null;
     private school: any = null;
     protected created(): void {
+      this.$store.commit('saveUserid', 87);
       if (!this.$store.state.userid) {
         const url = encodeURIComponent(location.href);
         window.location.href = `https://open.weixin.qq.com/connect/oauth2/authorize?appid=wx0e734c0a8f759921&redirect_uri=${url}&response_type=code&scope=snsapi_userinfo#wechat_redirect`;
       } else {
-        this.getGoodList();
         const { name, birthday, inviteName, giveCourse, inviteUser, paymenttype, home, owner, school } = this.$route.query;
         this.name = name;
         this.birthday = birthday;
@@ -171,7 +171,10 @@
         this.school = school;
         if (Number(home) === 11) {
           this.fromHome = true;
+          this.owner = '';
+          this.school = '';
         }
+        this.getGoodList();
       }
     }
     private async submitRes(): Promise<any> {
@@ -291,7 +294,7 @@
     private async getGoodList(): Promise<any> {
       try {
         const obj = await this.$api({
-          url: this.fromHome ? `/courseMudle/findBuyCourseMudle`  : `/courseMudle/findBuyCourseMudle?owner=${this.owner}&school=${this.school}`,
+          url: `/courseMudle/findBuyCourseMudle?owner=${this.owner}&school=${this.school}`,
           method: 'get'
         })
         this.goodsList = obj;
@@ -324,7 +327,7 @@
     }
     private async getGetMoneyPerson(): Promise<any> {
       const obj = await this.$api({
-        url: this.fromHome ? `/coursePayUser/findRector` : `/coursePayUser/findRector?owner=${this.owner}&school=${this.school}`,
+        url: `/coursePayUser/findRector?owner=${this.owner}&school=${this.school}`,
         method: 'get',
       })
       this.getMoneyPersonList = obj;
@@ -335,7 +338,7 @@
         this.$toast.loading({duration: 0});
         try {
           const obj = await this.$api({
-            url: this.fromHome ? `/courseEtc/findRemaCourseByBirthDay?birthday=${this.birthday}` : `/courseEtc/findRemaCourseByBirthDay?birthday=${this.birthday}&owner=${this.owner}&school=${this.school}`,
+            url: `/courseEtc/findRemaCourseByBirthDay?birthday=${this.birthday}&owner=${this.owner}&school=${this.school}`,
             method: 'get'
           })
           obj.forEach((e: any) => {
