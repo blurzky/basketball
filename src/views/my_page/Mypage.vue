@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div v-if="userinfo.userid" class="page">
+    <div v-if="userinfo" class="page">
       <div class="top">
         <div class="info">
           <img :src="userinfo.head">
@@ -21,8 +21,9 @@
           </div>
         </div>
       </div>
+      <van-cell class="cell" title="购买课程" icon="shopping-cart-o" @click="$router.push(`/mymall?name=${userinfo.uname}&birthday=${userinfo.birthday}&sex=${userinfo.sex}&overTime=${overTime}&tel=${userinfo.tel}`)" />
       <!-- <van-cell class="cell" title="上课记录" icon="notes-o" @click="$router.push(`/coach_course`)" /> -->
-      <van-cell class="cell" title="课程打分" icon="good-job-o" @click="$router.push(`/comment?role=1}`)" />
+      <van-cell class="cell" title="课程打分" icon="good-job-o" @click="$router.push(`/comment?role=1`)" />
       <van-cell class="cell" title="分享比高" icon="ellipsis" @click="isShow = true" />
       <a href="tel: 13540497299"><van-cell class="cell" title="联系客服" icon="service-o" /></a>
     </div>
@@ -42,13 +43,12 @@
     }
   })
   export default class MyPage extends Vue {
-    private className: string[] = ['剩余课程', '已上课程', '本周剩余'];
+    private className: string[] = ['剩余课程', '已上课程'];
     private classList: number[] = [];
     private isShow: boolean = false;
     private overTime: string = null;
     private userinfo: object = null;
     protected created(): void {
-      // this.$store.commit('saveUserid', 84);
       if (!this.$store.state.userid) {
         const url = encodeURIComponent(`${location.origin + location.pathname}`);
         window.location.href = `https://open.weixin.qq.com/connect/oauth2/authorize?appid=wx0e734c0a8f759921&redirect_uri=${url}&response_type=code&scope=snsapi_userinfo#wechat_redirect`;
@@ -66,7 +66,7 @@
           this.$router.replace('/worker_page');
         }
         this.formatOverTime(vipOutTime);
-        this.classList.push(remaSum, buySum - remaSum, remaWeek);
+        this.classList.push(remaSum, buySum - remaSum);
         this.userinfo = beeagleUsers;
         if ((this.userinfo as any).birthday) {
           const e: any = new Date((this.userinfo as any).birthday);
@@ -152,6 +152,7 @@
         background-color: #fff;
         justify-content: space-between;
         .class_type {
+          width: 50%;
           text-align: center;
           .num {
             margin-bottom: 15px;

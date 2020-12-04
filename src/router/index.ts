@@ -16,6 +16,24 @@ const routes: Array<RouteConfig> = [
     component: () => import('../views/login/Login.vue')
   },
   {
+    path: '/check_mall',
+    name: 'check_mall',
+    meta: {
+      index: 0,
+      title: '校长审核'
+    },
+    component: () => import('../views/my_page/my_mall/CheckMall.vue'),
+  },
+  {
+    path: '/mymall',
+    name: 'mymall',
+    meta: {
+      index: 0,
+      title: '自助选课'
+    },
+    component: () => import('../views/my_page/my_mall/MyMall.vue'),
+  },
+  {
     path: '/mypage',
     name: 'mypage',
     meta: {

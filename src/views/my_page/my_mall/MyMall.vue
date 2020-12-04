@@ -2,13 +2,8 @@
   <div>
     <div v-if="$store.state.userid" class="page">
       <van-form>
-        <div class="name_box">
-          <van-field v-model="name" :readonly="!fromHome" class="input" label="姓名" :placeholder="fromHome ? '请输入' : ''" @input="getName" />
-          <div v-if="nameShow" class="thinking_box">
-            <van-cell :value="rname" :border="false" v-for="({rname, tel, uname, userid}, index) in nameList" :key="index" @click="chooseName(tel, uname, userid)" />
-          </div>
-        </div>
-        <van-field v-model="birthday" readonly class="input" label="出生年月日" :placeholder="fromHome ? '请选择出生日期' : ''" right-icon="calender-o" @click="chooseBirth" />
+        <van-field v-model="name" class="input" label="姓名" />
+        <van-field v-model="birthday" readonly class="input" label="出生年月日" placeholder="请选择出生日期" right-icon="calender-o" @click="chooseBirth" />
         <van-field v-model="sex" readonly required class="input" label="性别" placeholder="请选择性别" @click="showPicks(1)" />
         <van-field v-model="startDay" readonly required class="input" label="开始日期" placeholder="年-月-日" right-icon="calender-o" @click="showStartDay = true" />
         <van-field v-model="goods" readonly required class="input" label="产品" placeholder="请选择产品" @click="startDay ? showPicks(2) : $toast('请先选择开始日期')" />
@@ -21,12 +16,12 @@
           type="textarea"
           :autosize="true"
           class="input"
-          label="选课"
-          placeholder="请选课"
+          label="选择课程"
+          placeholder="请选择课程"
           @click="birthday ? goods ? getClassList() : $toast('请选择产品') : $toast('请选择生日')"
         />
-        <van-field v-model="payWay" readonly required label="缴费性质" class="input" placeholder="请选择缴费性质" @click="fromHome ? showPicks(4) : null"/>
-        <van-field v-model="introUser" readonly label="转介绍顾客" class="input" placeholder="请选择介绍的老顾客" @click="payWayId === 4 ? getIntroUser() : fromHome ? $toast('非老客转介绍') : null"/>
+        <van-field v-model="payWay" readonly required label="缴费性质" class="input" placeholder="请选择缴费性质" @click="showPicks(4)"/>
+        <van-field v-model="introUser" readonly label="转介绍顾客" class="input" placeholder="请选择介绍的老顾客" @click="payWayId === 4 ? getIntroUser() : $toast('非老客转介绍')"/>
         <van-field v-model="presentClass" readonly class="input" label="获赠课程" placeholder="请填写老客获得赠送课程(节)" />
         <van-field
           v-model="tel"
@@ -41,9 +36,6 @@
           :rules="[{ pattern: /^1[3456789]\d{9}$/, message: '手机号格式不正确' }]"
         />
         <van-field v-model="equipment" readonly required class="input" label="装备性质" placeholder="请选择装备性质" @click="showPicks(3)" />
-        <van-field v-model="notice" clearable class="input" type="textarea" :autosize="true" maxlength="150" label="备注" placeholder="请输入备注" />
-        <van-field v-model="getMoneyPerson" readonly class="input" label="收款人" placeholder="请选择收款人" @click="showPicks(6)" />
-        <van-field v-model="reallyMoney" required class="input" type="number" maxlength="6" label="实收费用" placeholder="请输入实际收费金额，单位元" />
       </van-form>
       <div class="submit">
         <van-button round block type="info" @click="submitRes">提交</van-button>
@@ -105,9 +97,8 @@
       [CheckboxGroup.name]: CheckboxGroup,
     }
   })
-  export default class Mall extends Vue {
+  export default class MyMall extends Vue {
     private nameShow: boolean = false;
-    private fromHome: boolean = false;
     private showBirth: boolean = false;
     private showStartDay: boolean = false;
     private showPicker: boolean = false;
@@ -118,7 +109,6 @@
     private currentBirthDate: object = null;
     private minBirthDate: object = new Date(2000, 0, 1);
     private maxBirthDate: object = new Date();
-    private userid: string = null;
     private name: any = null;
     private birthday: any = null;
     private sex: string = null;
@@ -134,16 +124,11 @@
     private classes: string = null;
     private payWayId: number = null;
     private introUserId: any = null;
-    private notice: string = '';
-    private getMoneyPerson: string = null;
-    private getMoneyPersonId: string = null;
-    private reallyMoney: string = null;
     private columns: any[] = [];
     private payWayList: any[] = [];
     private introUserList: any[] = [];
     private goodsList: any[] = [];
     private equipmentList: any[] = [];
-    private getMoneyPersonList: any[] = [];
     private sexList: string[] = ['男', '女']; 
     private classesList: any[] = [];
     private classIdList: any[] = [];
@@ -159,7 +144,7 @@
         const url = encodeURIComponent(location.href);
         window.location.href = `https://open.weixin.qq.com/connect/oauth2/authorize?appid=wx0e734c0a8f759921&redirect_uri=${url}&response_type=code&scope=snsapi_userinfo#wechat_redirect`;
       } else {
-        const { name, birthday, inviteName, giveCourse, inviteUser, paymenttype, home, owner, school } = this.$route.query;
+        const { tel, overTime, sex, name, birthday, inviteName, giveCourse, inviteUser, paymenttype, home, owner, school } = this.$route.query;
         this.name = name;
         this.birthday = birthday;
         this.introUser = inviteName;
@@ -168,19 +153,19 @@
         this.payWay = paymenttype;
         this.owner = owner || '';
         this.school = school || '';
-        if (Number(home) === 11) {
-          this.fromHome = true;
-        }
+        this.sex = (sex === '1' ? '男' : '女');
+        this.startDay = String(overTime);
+        this.tel = String(tel);
         this.getGoodList();
       }
     }
     private async submitRes(): Promise<any> {
-      const { name, birthday, sex, startDay, endDay, payWayId, tel, goods, equipment, classes, notice, goodsList, goodsIndex, myChooseClassId, reallyMoney, introUserId, presentClass, getMoneyPersonId} = this;
-      if (sex && startDay && tel && goods && equipment && classes && reallyMoney) {
+      const { name, birthday, sex, startDay, endDay, payWayId, tel, goods, equipment, classes, goodsList, goodsIndex, myChooseClassId, introUserId, presentClass} = this;
+      if (sex && startDay && tel && goods && equipment && classes) {
         this.$toast.loading({duration: 0});
         try {
           await this.$api({
-            url: '/coursePayUser/buyCourse',
+            url: '/coursePayUser/buyCourseUsers',
             data: {
               uname: name,
               birthday: birthday,
@@ -191,11 +176,9 @@
               courseId: goodsList[goodsIndex].id,
               week: goodsList[goodsIndex].week,
               quip: equipment,
-              mark: notice,
-              money: reallyMoney,
-              payee: getMoneyPersonId,
+              mark: '',
               sex: sex === '男' ? 1 : 2,
-              userid: this.$route.query.userid || this.userid,
+              userid: this.$store.state.userid,
               inviteUser: introUserId,
               giveCourse: presentClass.split(' ')[0],
               courseEtc: myChooseClassId,
@@ -237,10 +220,6 @@
         this.payWayList.forEach((e) => {
           this.columns.push(e.name);
         });
-      } else if (e === 6) {
-        this.getMoneyPersonList.forEach((e) => {
-          this.columns.push(e.username);
-        });
       }
       this.showPicker = true;
     }
@@ -262,9 +241,6 @@
       } else if (this.pickIndex === 5) {
         this.introUser = e;
         this.introUserId = this.introUserList[index].userid;
-      } else if (this.pickIndex === 6) {
-        this.getMoneyPerson = e;
-        this.getMoneyPersonId = this.getMoneyPersonList[index].user_id;
       }
       this.showPicker = false;
     }
@@ -284,9 +260,7 @@
       })
     }
     private chooseBirth(): void {
-      if (this.fromHome) {
-        this.showBirth = true;
-      }
+      this.showBirth = true;
     }
     private async getGoodList(): Promise<any> {
       try {
@@ -320,14 +294,6 @@
         method: 'get',
       })
       this.payWayList = obj;
-      this.getGetMoneyPerson();
-    }
-    private async getGetMoneyPerson(): Promise<any> {
-      const obj = await this.$api({
-        url: `/coursePayUser/findRector?owner=${this.owner}&school=${this.school}`,
-        method: 'get',
-      })
-      this.getMoneyPersonList = obj;
       this.$store.commit('setLoadingStatus', false);
     }
     private async getClassList(): Promise<any> {
@@ -374,55 +340,12 @@
         this.$toast.fail(error);
       }
     }
-    private async getName(): Promise<any> {
-      if (this.name) {
-        this.nameShow = true;
-        try {
-          const obj = await this.$api({
-            url: '/beeagleUsers/findBeaagleUsersByRector',
-            data: {
-              userid: this.$store.state.userid,
-              value: this.name
-            }
-          });
-          this.nameList = obj;
-        } catch (error) {
-          this.$toast.fail(error);
-        }
-      } else {
-        this.nameShow = false;
-        this.nameList = null;
-      }
-    }
-    private chooseName(tel: string, name: string, userid: string): void {
-      this.name = name;
-      this.tel = tel;
-      this.userid = userid;
-      this.nameShow = false;
-    }
   }
 </script>
 
 <style lang="scss" scoped>
   .page {
     padding: 20px 10px;
-    .name_box {
-      position: relative;
-      .thinking_box {
-        top: 44px;
-        left: 80px;
-        z-index: 99;
-        overflow: hidden;
-        max-height: 300px;
-        overflow-y: scroll;
-        position: absolute;
-        box-sizing: border-box;
-        width: calc(100% - 80px);
-        border: 1px solid #d8d8d8;
-        border-top: none;
-        border-radius: 0 0 14px 14px;
-      }
-    }
     .input {
       margin-bottom: 20px;
     }
