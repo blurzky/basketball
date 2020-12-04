@@ -1,5 +1,6 @@
 <template>
   <div>
+    <img :src="topImg" v-if="$store.state.userid && topImg" class="showcard"/>
     <div v-if="$store.state.userid" class="page">
       <van-form>
         <van-field
@@ -155,17 +156,20 @@
     private myChooseClass: string[] = [];
     private myChooseClassId: any[] = [];
     private limitClassNum: number = null;
+    private topImg: string = null;
+    private owner: any = null;
     protected created(): void {
-      //encodeURIComponent(`${location.origin + location.pathname}?inviteUser=${this.$route.query.inviteUser}&owner=${this.$route.query.owner}`);
       if (!this.$store.state.userid) {
         const url = encodeURIComponent(location.href);
         window.location.href = `https://open.weixin.qq.com/connect/oauth2/authorize?appid=wx0e734c0a8f759921&redirect_uri=${url}&response_type=code&scope=snsapi_userinfo#wechat_redirect`;
       } else {
+        this.owner = this.$route.query.owner || '';
         this.getTime();
         Promise.all([
           this.getway(),
           this.getPlace(),
-          this.getYear()
+          this.getYear(),
+          this.getImg()
         ]).then(() => {
           this.$store.commit('setLoadingStatus', false);
         }).catch(error => {
@@ -181,18 +185,23 @@
       this.maxDate = new Date(year - 3, month, day);
       this.currentDate = new Date(year - 3, month, day);
     }
-    private async getway(): Promise<any> {
-      const {owner} = this.$route.query;
+    private async getImg(): Promise<any> {
       const obj = await this.$api({
-        url: `/courseMudle/findTrialCourseMudle?owner=${owner}`,
+        url: `joiner/getBackTrailUrl?owner=${this.owner}`,
+        method: 'get',
+      })
+      this.topImg = obj;
+    }
+    private async getway(): Promise<any> {
+      const obj = await this.$api({
+        url: `/courseMudle/findTrialCourseMudle?owner=${this.owner}`,
         method: 'get',
       })
       this.wayList = obj;
     }
     private async getPlace(): Promise<any> {
-      const {owner} = this.$route.query;
       const obj = await this.$api({
-        url: `/beeagleUsers/findAddrList?owner=${owner}`,
+        url: `/beeagleUsers/findAddrList?owner=${this.owner}`,
         method: 'get',
       })
       this.placeList = obj;
@@ -362,6 +371,11 @@
 </script>
 
 <style lang="scss" scoped>
+  .showcard {
+    width: 100%;
+    height: vw(250);
+    object-fit: cover;
+  }
   .page {
     padding: 20px 12px;
     .title {

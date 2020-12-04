@@ -21,7 +21,7 @@
           </div>
         </div>
       </div>
-      <van-cell class="cell" title="购买课程" icon="shopping-cart-o" @click="$router.push(`/mymall?name=${userinfo.uname}&birthday=${userinfo.birthday}&sex=${userinfo.sex}&overTime=${overTime}&tel=${userinfo.tel}`)" />
+      <van-cell class="cell" title="自主选课" icon="shopping-cart-o" @click="$router.push(`/mymall?name=${userinfo.uname}&birthday=${userinfo.birthday}&sex=${userinfo.sex}&overTime=${overTime}&tel=${userinfo.tel}`)" />
       <!-- <van-cell class="cell" title="上课记录" icon="notes-o" @click="$router.push(`/coach_course`)" /> -->
       <van-cell class="cell" title="课程打分" icon="good-job-o" @click="$router.push(`/comment?role=1`)" />
       <van-cell class="cell" title="分享比高" icon="ellipsis" @click="isShow = true" />

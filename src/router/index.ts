@@ -29,7 +29,7 @@ const routes: Array<RouteConfig> = [
     name: 'mymall',
     meta: {
       index: 0,
-      title: '自助选课'
+      title: '自主选课'
     },
     component: () => import('../views/my_page/my_mall/MyMall.vue'),
   },
