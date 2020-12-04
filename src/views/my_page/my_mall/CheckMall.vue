@@ -134,7 +134,7 @@
     }
     private async getInfo(): Promise<any> {
       try {
-        const { course, entity, inviteName, paymenttypeName } = await this.$api({
+        const { inviterName, course, entity, inviteName, paymenttypeName } = await this.$api({
           url: `/coursePayUser/findCoursePayUserById`,
           data: {
             id: this.$route.query.id
@@ -175,7 +175,7 @@
         });
         this.payWay = paymenttypeName;
         this.payWayId = paymenttype;
-        this.introUser = inviteUser;
+        this.introUser = inviterName;
         this.introUserId = inviteUser;
         this.presentClass = giveCourse;
         this.equipment = quip;

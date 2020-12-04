@@ -161,7 +161,7 @@
     }
     private async submitRes(): Promise<any> {
       const { name, birthday, sex, startDay, endDay, payWayId, tel, goods, equipment, classes, goodsList, goodsIndex, myChooseClassId, introUserId, presentClass} = this;
-      if (sex && startDay && tel && goods && equipment && classes) {
+      if (payWayId && introUserId && sex && startDay && tel && goods && equipment && classes) {
         this.$toast.loading({duration: 0});
         try {
           await this.$api({
