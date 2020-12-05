@@ -27,6 +27,7 @@
       <van-cell v-if="menus.includes(6)" class="cell" title="教练评语" icon="comment-o" @click="$router.push(`/comment?role=${userinfo.role}`)" />
       <van-cell v-if="menus.includes(7)" class="cell" title="我的二维码" icon="scan" @click="$router.push(`/qr`)" />
       <van-cell v-if="menus.includes(8)" class="cell" title="我的二维码" icon="scan" @click="$router.push(`/my_qr`)" />
+      <van-cell v-if="menus.includes(9)" class="cell" title="自主选课-审核" icon="label-o" @click="$router.push(`/check_mall?rectorId=${rectorId}`)" />
     </div>
   </div>
 </template>
@@ -43,6 +44,7 @@
   })
   export default class WorkerPage extends Vue {
     private overTime: string = null;
+    private rectorId: number = null;
     private userinfo: object = {};
     private menus: string[] = [];
     protected created(): void {
@@ -50,7 +52,7 @@
     }
     private async getInfo(): Promise<any> {
       try {
-        const { worker, menus } = await this.$api({
+        const { beeagleUsers, worker, menus } = await this.$api({
           url: `/courseRema/findById?userid=${this.$store.state.userid}`,
           method: 'get',
         })
@@ -59,6 +61,7 @@
         }
         this.userinfo = worker;
         this.menus = menus;
+        this.rectorId = beeagleUsers.sysUserId;
         this.$store.commit('setLoadingStatus', false);
       } catch (error) {
         this.$toast.fail(`${error}`);

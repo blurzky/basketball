@@ -1,191 +1,98 @@
+
+
 <template>
   <div>
-    <div v-if="$store.state.userid" class="page">
-      <van-form>
-        <van-field v-model="name" readonly class="input" label="姓名" />
-        <van-field v-model="birthday" readonly class="input" label="出生年月日" right-icon="calender-o" />
-        <van-field v-model="sex" readonly class="input" label="性别" />
-        <van-field v-model="startDay" readonly class="input" label="开始日期" placeholder="年-月-日" right-icon="calender-o" />
-        <van-field v-model="goods" readonly class="input" label="产品" />
-        <van-field v-model="weeks" readonly class="input" label="有效周数" />
-        <van-field v-model="endDay" readonly class="input" label="结束日期" right-icon="calender-o" />
-        <van-field
-          v-model="classes"
-          readonly
-          type="textarea"
-          :autosize="true"
-          class="input"
-          label="选择课程"
-        />
-        <van-field v-model="payWay" readonly label="缴费性质" class="input" />
-        <van-field v-model="introUser" readonly label="转介绍顾客" class="input" />
-        <van-field v-model="presentClass" readonly class="input" label="获赠课程" />
-        <van-field
-          v-model="tel"
-          readonly
-          class="input"
-          maxlength="11"
-          label="电话号码"
-          right-icon="phone-o"
-        />
-        <van-field v-model="equipment" readonly class="input" label="装备性质" />
-        <van-field v-model="reallyMoney" required class="input" type="number" maxlength="6" label="缴费金额" placeholder="请输入缴费金额，单位元" />
-        <van-field v-model="notice" clearable class="input" type="textarea" :autosize="true" maxlength="150" label="备注" placeholder="请输入备注" />
-      </van-form>
-      <div class="submit">
-        <van-button round block type="info" @click="submitRes">提交</van-button>
+    <div class="page">
+      <div class="class_list">
+        <div v-for="(item, index) in list" :key="index" class="class_wrapper">
+          <div class="top_info">
+            <div class="name">学员：{{item.rname}}</div>
+            <a :href="`tel: ${item.tel}`">
+              <div class="name">{{item.tel}}</div>
+            </a>
+          </div>
+          <div v-for="({addr, end_time, group_name, name, start_time, week, coach_name}, index) in item.courseEtc" :key="index" class="bottom_info">
+            <div class="pos_coach">
+              <div class="name">
+                <span>{{coach_name}}教练</span>
+                <span class="level">{{group_name}} {{name}}</span>
+              </div>
+              <div class="position">
+                <van-icon name="location" size="16px" color="#d8d8d8" />
+                <span>{{addr}}</span>
+              </div>
+            </div>
+            <div class="weeks">
+              <div class="week_top">{{week}}</div>
+              <div class="week_bottom">
+                <div>{{start_time}}</div>
+                <div style="width: 30px">至</div>
+                <div>{{end_time}}</div>
+              </div>
+            </div>
+          </div>
+          <div class="btns">
+            <div class="pass_btn" @click="type = 2;id = item.id;show = true;index = index">通过</div>
+            <div class="reject_btn" @click="type = 3;id = item.id;show = true;index = index">驳回</div>
+          </div>
+        </div>
       </div>
+      <van-dialog v-model="show" :title="type === 2 ? '是否通过' : '是否驳回'" show-cancel-button @confirm="action">
+        <van-field v-if="type === 3" v-model="msg" type="textarea" rows="4" label="驳回理由" placeholder="输出驳回理由" />
+      </van-dialog>
     </div>
   </div>
 </template>
 
 <script lang="ts">
   import { Component, Vue } from 'vue-property-decorator'
-  import { Cell, Button, DatetimePicker, Form, Field, Popup, Picker, Checkbox, CheckboxGroup } from 'vant'
+  import { Icon, Popup, Dialog, Field } from 'vant'
   @Component({
     components: {
-      [Cell.name]: Cell,
-      [Button.name]: Button,
-      [DatetimePicker.name]: DatetimePicker,
-      [Form.name]: Form,
-      [Field.name]: Field,
+      [Icon.name]: Icon,
       [Popup.name]: Popup,
-      [Picker.name]: Picker,
-      [Checkbox.name]: Checkbox,
-      [CheckboxGroup.name]: CheckboxGroup,
+      [Dialog.Component.name]: Dialog.Component,
+      [Field.name]: Field,
     }
   })
-  export default class Mall extends Vue {
-    private userid: string = null;
-    private name: any = null;
-    private birthday: any = null;
-    private sex: string = null;
-    private startDay: any = null;
-    private weeks: any = null;
-    private endDay: any = null;
-    private tel: string = null;
-    private payWay: any = null;
-    private payWayId: any = null;
-    private introUser: any = null;
-    private introUserId: any = null;
-    private presentClass: any = null;
-    private goods: string = null;
-    private goodsId: string = null;
-    private equipment: string = null;
-    private classes: string = null;
-    private reallyMoney: string = null;
-    private notice: string = '';
-    private classIdList: any[] = [];
-    private unloadTime: any = null;
+  export default class Login extends Vue {
+    private list: any[] = [];
+    private size: number = 0;
+    private msg: string = '';
+    private show: boolean = false;
+    private type: number = null;
+    private id: string = null;
+    private index: number = null;
     protected created(): void {
-      if (!this.$store.state.userid) {
-        const url = encodeURIComponent(location.href);
-        window.location.href = `https://open.weixin.qq.com/connect/oauth2/authorize?appid=wx0e734c0a8f759921&redirect_uri=${url}&response_type=code&scope=snsapi_userinfo#wechat_redirect`;
-      } else {
-        this.getInfo();
-      }
+      this.getDate();
     }
-    private async submitRes(): Promise<any> {
-      const { weeks, name, birthday, sex, startDay, endDay, payWayId, tel, goodsId, equipment, classes, notice, reallyMoney, introUserId, presentClass, unloadTime, classIdList} = this;
-      if (classes && reallyMoney) {
-        this.$toast.loading({duration: 0});
-        try {
-          await this.$api({
-            url: '/coursePayUser/updateCoursePayUserById',
-            method: 'PUT',
-            data: {
-              id: this.$route.query.id,
-              uname: name,
-              birthday: birthday,
-              stime: startDay,
-              etime: endDay,
-              paymenttype: payWayId,
-              tel: tel,
-              courseId: goodsId,
-              week: weeks,
-              quip: equipment,
-              mark: notice,
-              money: reallyMoney,
-              payee: this.$store.state.userid,
-              sex: sex === '男' ? 1 : 0,
-              time: unloadTime,
-              userid: this.userid,
-              myuserid: this.userid,
-              inviteUser: introUserId,
-              giveCourse: presentClass,
-              courseEtc: classIdList,
-            },
-            form: false,
-            headers: 'json',
-          });
-          this.$toast('提交成功');
-          this.$router.push('/success');
-        } catch (error) {
-          this.$toast(error);
-        }
-      } else {
-        this.$toast('请完善信息');
-      }
-    }
-    private timeUtil(date: any): void {
-      const e = new Date(date);
-      const time: any = `${e.getFullYear()}-${e.getMonth() < 9 ? `0` : ``}${e.getMonth() + 1}-${e.getDate() < 10 ? `0` : ``}${e.getDate()}`;
-      return time
-    }
-    private async getInfo(): Promise<any> {
+    private async action(): Promise<any> {
+      this.$toast.loading({duration: 0});
       try {
-        const { inviterName, course, entity, inviteName, paymenttypeName } = await this.$api({
-          url: `/coursePayUser/findCoursePayUserById`,
+        const obj = await this.$api({
+          url: `/applyCourse/updateApplyCourse`,
           data: {
-            id: this.$route.query.id
-          }
+            id: this.id,
+            state: this.type,
+            msg: this.msg
+          },
         });
-        const {
-          birthday,
-          courseEtc,
-          courseId,
-          etime,
-          giveCourse,
-          inviteUser,
-          mark,
-          money,
-          myuserid,
-          payee,
-          paymenttype,
-          quip,
-          sex,
-          stime,
-          tel,
-          time,
-          userid,
-          uname,
-          week
-        } = entity;
-        this.name = uname;
-        this.birthday = this.timeUtil(birthday);
-        this.sex = (sex === 1 ? '男' : '女');
-        this.startDay = this.timeUtil(stime);
-        this.goods = course;
-        this.goodsId = courseId;
-        this.weeks = week;
-        this.endDay = this.timeUtil(etime);
-        courseEtc.forEach((e: any) => {
-          this.classes += (`${e.addr} ${e.week} ${e.startTime}-${e.endTime} 组别:${e.groupName} 剩余:${e.allowpeples}\n`);
-          this.classIdList.push({id: e.id});
+        this.$toast(this.type === 2 ? '通过成功' : '驳回成功');
+        this.list.splice(this.index, 1);
+      } catch (error) {
+        this.$toast.fail(error);
+      }
+    }
+    private async getDate(): Promise<any> {
+      try {
+        const obj = await this.$api({
+          url: `/applyCourse/findApplyCourseByRectorId?rectorId=${this.$route.query.rectorId}&page=${this.size}`,
+          method: 'get'
         });
-        this.payWay = paymenttypeName;
-        this.payWayId = paymenttype;
-        this.introUser = inviterName;
-        this.introUserId = inviteUser;
-        this.presentClass = giveCourse;
-        this.equipment = quip;
-        this.tel = tel;
-        this.notice = mark;
-        this.unloadTime = time;
-        this.userid = userid;
+        this.list = obj;
         this.$store.commit('setLoadingStatus', false);
       } catch (error) {
-        this.$toast(error);
+        this.$toast.fail(error);
       }
     }
   }
@@ -193,16 +100,102 @@
 
 <style lang="scss" scoped>
   .page {
-    padding: 20px 10px;
-    .input {
-      margin-bottom: 20px;
-    }
-    .submit_btn {
-      margin: 0 80px;
-    }
-    .submit {
-      padding: 20px 80px 0 80px;
+    padding: 12px;
+    background-color: #ececec;
+    .class_list {
+      .class_wrapper {
+        overflow: hidden;
+        border-radius: 12px;
+        margin-bottom: 20px;
+        .top_info {
+          color: #fff;
+          display: flex;
+          line-height: 20px;
+          text-align: center;
+          align-items: center;
+          padding: 12px 20px 12px 0;
+          background-color: #ff6868;
+          justify-content: space-between;
+          .name {
+            width: 120px;
+          }
+          a:link {
+            color: #fff;
+          }
+          a:visited {
+            color: #fff;
+          }
+          a:active {
+            color: #fff;
+          }
+        }
+        .bottom_info {
+          display: flex;
+          line-height: 20px;
+          align-items: center;
+          background-color: #fff;
+          padding: 12px 20px 12px 12px;
+          justify-content: space-between;
+          border-bottom: 1px solid #dddddd;
+          .pos_coach {
+            width: 55%;
+            color: #999999;
+            .name {
+              display: flex;
+              align-items: center;
+              margin-bottom: 10px;
+              justify-content: space-between;
+              .level {
+                color: #000;
+                font-size: 11px;
+              }
+            }
+            .position {
+              display: flex;
+              align-items: center;
+              justify-content: flex-start;
+              &>span {
+                margin-left: 3px;
+              }
+            }
+          }
+          .weeks {
+            width: 40%;
+            text-align: center;
+            .week_top {
+              color: #fff;
+              background-color: #ffa136;
+            }
+            .week_bottom {
+              display: flex;
+              padding: 5px 20px;
+              align-items: center;
+              border: 1px solid #ececec;
+              justify-content: space-between;
+            }
+          }
+        }
+        .btns {
+          display: flex;
+          padding: 15px 20px;
+          align-items: center;
+          background-color: #fff;
+          justify-content: space-between;
+          .pass_btn, .reject_btn {
+            width: 120px;
+            color: #fff;
+            line-height: 28px;
+            text-align: center;
+            border-radius: 6px;
+            background-color: #ff6868;
+          }
+          .reject_btn {
+            color: #000;
+            background-color: #fff;
+            border: 1px solid #cecece;
+          }
+        }
+      }
     }
   }
 </style>
-

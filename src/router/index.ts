@@ -20,7 +20,7 @@ const routes: Array<RouteConfig> = [
     name: 'check_mall',
     meta: {
       index: 0,
-      title: '校长审核'
+      title: '自主选课审核'
     },
     component: () => import('../views/my_page/my_mall/CheckMall.vue'),
   },
