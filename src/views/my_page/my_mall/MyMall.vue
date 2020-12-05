@@ -90,7 +90,7 @@
       this.myChooseClass.forEach((e: any) => {
         this.myChooseClassId.push({id: this.classIdList[e]});
       });
-      this.$toast.loading({duration: 0});
+      this.$toast.loading();
       try {
         const obj = await this.$api({
           url: `/applyCourse/addApplyCourse`,
@@ -110,7 +110,7 @@
     private async getClassList(): Promise<any> {
       this.classesList = [];
       this.classIdList = [];
-      this.$toast.loading({duration: 0});
+      this.$toast.loading();
       try {
         const { userid } = this.$store.state;
         const { birthday, owner } = this.$route.query;

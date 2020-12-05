@@ -2,7 +2,7 @@
 
 <template>
   <div>
-    <div class="page">
+    <div v-if="list.length" class="page">
       <div class="class_list">
         <div v-for="(item, index) in list" :key="index" class="class_wrapper">
           <div class="top_info">
@@ -41,18 +41,20 @@
         <van-field v-if="type === 3" v-model="msg" type="textarea" rows="4" label="驳回理由" placeholder="输出驳回理由" />
       </van-dialog>
     </div>
+    <van-empty v-else description="暂无数据" />
   </div>
 </template>
 
 <script lang="ts">
   import { Component, Vue } from 'vue-property-decorator'
-  import { Icon, Popup, Dialog, Field } from 'vant'
+  import { Icon, Popup, Dialog, Field, Empty } from 'vant'
   @Component({
     components: {
       [Icon.name]: Icon,
       [Popup.name]: Popup,
       [Dialog.Component.name]: Dialog.Component,
       [Field.name]: Field,
+      [Empty.name]: Empty,
     }
   })
   export default class Login extends Vue {
@@ -66,8 +68,11 @@
     protected created(): void {
       this.getDate();
     }
+    private beforeDestroy(): void {
+      window.removeEventListener('scroll', this.scroll);
+    }
     private async action(): Promise<any> {
-      this.$toast.loading({duration: 0});
+      this.$toast.loading();
       try {
         const obj = await this.$api({
           url: `/applyCourse/updateApplyCourse`,
@@ -89,10 +94,23 @@
           url: `/applyCourse/findApplyCourseByRectorId?rectorId=${this.$route.query.rectorId}&page=${this.size}`,
           method: 'get'
         });
-        this.list = obj;
+        this.list.push(...obj);
+        if (this.size === 0) {
+          this.$nextTick(() => {
+            window.addEventListener('scroll', this.scroll);
+          });
+        }
         this.$store.commit('setLoadingStatus', false);
       } catch (error) {
         this.$toast.fail(error);
+      }
+    }
+    private scroll(e: any): void {
+      const height = document.body.scrollHeight;
+      const scrollTop = Math.ceil(document.documentElement.scrollTop + document.documentElement.clientHeight);
+      if (scrollTop >= height && this.list.length && this.list.length % 20 === 0) {
+        this.size += 1;
+        this.getDate();
       }
     }
   }
