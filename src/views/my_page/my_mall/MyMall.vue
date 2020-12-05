@@ -207,7 +207,9 @@
           }
           .weeks {
             width: 40%;
+            overflow: hidden;
             text-align: center;
+            border-radius: 6px 6px 0 0;
             .week_top {
               color: #fff;
               background-color: #ffa136;
