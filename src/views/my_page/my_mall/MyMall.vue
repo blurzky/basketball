@@ -39,7 +39,7 @@
       </div>
     </div>
     <van-popup v-model="showPickClass" class="check_popup" position="bottom" :style="{ height: '70%' }">
-      <van-checkbox-group v-model="myChooseClass" :max="limitClassNum">
+      <van-checkbox-group v-model="myChooseClass">
         <van-checkbox v-for="(item, index) in classesList" :key="index" :name="index" class="check_box">{{item}}</van-checkbox>
       </van-checkbox-group>
       <div class="choose_btn">
@@ -65,7 +65,6 @@
     private showPickClass: boolean = false;
     private myChooseClass: string[] = [];
     private myChooseClassId: any[] = [];
-    private limitClassNum: number = null;
     private classesList: any[] = [];
     private classIdList: any[] = [];
     private list: any[] = [];
@@ -79,7 +78,6 @@
           method: 'get'
         });
         this.list = obj;
-        this.limitClassNum = obj.length;
         this.$store.commit('setLoadingStatus', false);
       } catch (error) {
         this.$toast.fail(`${error}`);

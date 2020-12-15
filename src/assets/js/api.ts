@@ -2,7 +2,7 @@ import axios from 'axios'
 import Vue from 'vue'
 const bigao: any = axios.create({
   baseURL: '/api',
-  timeout: 30000,
+  timeout: 90000,
 });
 
 // 接口定义 axios二次封装
