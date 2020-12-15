@@ -18,7 +18,6 @@
   export default class Qr extends Vue {
     private info: any = null;
     protected created(): void {
-      this.$store.commit('saveUserid', 85);
       this.getInfo();
     };
     private async getInfo(): Promise<any> {
