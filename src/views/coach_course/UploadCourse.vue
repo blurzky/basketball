@@ -105,8 +105,7 @@
     }
     private afterRead(file: any): void {
       this.fileName = file.file.name;
-      this.file = file;
-      console.log(file);
+      this.file = file.file;
     }
     private chooseModel(model: any, index: number): void {
       const { id, infos, stage, title, train_time} = this.modelObj[index];
