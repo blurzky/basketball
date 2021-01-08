@@ -3,6 +3,9 @@ import Vue from 'vue'
 const bigao: any = axios.create({
   baseURL: '/api',
   timeout: 90000,
+  headers: {
+    'Authorization' : localStorage.getItem('token') || ''
+  }
 });
 
 // 接口定义 axios二次封装
@@ -12,7 +15,7 @@ async function api({url, data, form = true, method = 'post',  headers, validateS
       url,
       data,
       method,
-      headers: !headers ? {'Content-Type': 'application/x-www-form-urlencoded'} : {'Content-Type': 'application/json'},
+      headers: headers ? headers : form ? {'Content-Type': 'application/x-www-form-urlencoded'} : {'Content-Type': 'application/json'},
       transformRequest: form ? [() => {
         let str = '';
         for (let key in data) {

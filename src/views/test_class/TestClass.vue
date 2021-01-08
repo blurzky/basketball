@@ -335,7 +335,6 @@
                   const {message, status} = await this.$api({
                     url: '/courseTrial/applyCourseTrial',
                     form: false,
-                    headers: 'json',
                     data: JSON.stringify({
                       addr: usePlace,
                       date: useday,

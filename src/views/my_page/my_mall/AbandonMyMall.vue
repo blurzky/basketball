@@ -185,7 +185,6 @@
               myuserid: this.$store.state.userid
             },
             form: false,
-            headers: 'json',
           })
           this.$toast('提交成功');
           this.$router.push('/success');

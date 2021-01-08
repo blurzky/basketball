@@ -11,7 +11,7 @@ interface ApiQuery {
   url: string;
   data?: any;
   form?: boolean;
-  headers?: string;
+  headers?: any;
   method?: string;
   validateStatus?: boolean;
 }

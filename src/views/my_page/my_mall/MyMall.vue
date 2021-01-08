@@ -97,7 +97,6 @@
             courseEtc: this.myChooseClassId
           },
           form: false,
-          headers: 'json',
         });
         this.$toast('审核中');
         this.showPickClass = false;
@@ -153,7 +152,7 @@
     .class_list {
       .class_wrapper {
         overflow: hidden;
-        border-radius: 12px;
+        border-radius: 25px;
         margin-bottom: 20px;
         .top_info {
           color: #fff;
@@ -162,8 +161,9 @@
           text-align: center;
           align-items: center;
           padding: 12px 20px 12px 0;
-          background-color: #ff6868;
+          background: center / cover;
           justify-content: space-between;
+          background-image: url('./icon/图层 3@2x.png');
           .name_tel {
             width: 120px;
             a:link {
@@ -210,7 +210,8 @@
             border-radius: 6px 6px 0 0;
             .week_top {
               color: #fff;
-              background-color: #ffa136;
+              background: center / cover;
+              background-image: url('./icon/图层 3 拷贝 4@2x.png');
             }
             .week_bottom {
               display: flex;

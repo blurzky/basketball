@@ -25,7 +25,7 @@
       <van-cell v-if="menus.includes(4)" class="cell" title="缴费上报" icon="shopping-cart-o" @click="$router.push('/mall?home=11')" />
       <van-cell v-if="menus.includes(5)" class="cell" title="课程打分" icon="good-job-o" @click="$router.push(`/comment?role=1}`)" />
       <van-cell v-if="menus.includes(6)" class="cell" title="教练评语" icon="comment-o" @click="$router.push(`/comment?role=${userinfo.role}`)" />
-      <van-cell v-if="menus.includes(7)" class="cell" title="我的二维码" icon="scan" @click="$router.push(`/qr`)" />
+      <van-cell v-if="menus.includes(7)" class="cell" title="VIP二维码" icon="scan" @click="$router.push(`/qr`)" />
       <van-cell v-if="menus.includes(8)" class="cell" title="我的二维码" icon="scan" @click="$router.push(`/my_qr`)" />
       <van-cell v-if="menus.includes(9)" class="cell" title="自主选课-审核" icon="label-o" @click="$router.push(`/check_mall?rectorId=${rectorId}`)" />
     </div>
@@ -78,7 +78,8 @@
 .page {
   .top {
     padding: 20px;
-    background-color: #383838;
+    background: center / cover;
+    background-image: url('./icon/Clip@2x.png');
     .info {
       display: flex;
       align-items: center;

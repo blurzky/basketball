@@ -16,11 +16,11 @@
         </div>
       </div>
     </div>
-    <van-popup v-model="addShow" round :close-on-click-overlay="false" style="height: 70%;width: 90%">
+    <van-popup v-model="addShow" round :close-on-click-overlay="false" style="height: 27%;width: 90%">
       <div class="add_box">
         <div class="title">{{popType === 0 ? '增加教案' : '修改教案'}}</div>
         <van-field v-model="teachingPlanId" label="教案编号" required readonly />
-        <van-field v-model="modelName" label="教案模板" placeholder="选择教案模板" readonly  @click="getModel" />
+        <!-- <van-field v-model="modelName" label="教案模板" placeholder="选择教案模板" readonly  @click="getModel" />
         <van-field v-model="modelTitle" label="教学标题" placeholder="请输入标题" />
         <van-field v-model="modelTime" label="教学时长" placeholder="请输入 例：15min" />
         <van-field v-model="modelGood" label="训练道具" placeholder="请输入" />
@@ -31,12 +31,19 @@
           rows="3"
           autosize
           type="textarea"
-        />
-        <van-field label="序号">
+        /> -->
+        <van-field v-model="fileName" required readonly>
+          <template #label>
+            <van-uploader accept=".doc,.docx,.DOC,.DOCX" :after-read="afterRead">
+              <van-button icon="plus" type="info" size="mini">上传文件</van-button>
+            </van-uploader>
+          </template>
+        </van-field>
+        <!-- <van-field label="序号">
           <template #input>
             <van-stepper v-model="modelIndex" min="0" integer />
           </template>
-        </van-field>
+        </van-field> -->
         <div class="btns">
           <div class="cancel" @click="clear">取消</div>
           <div class="submit" @click="addSubmit">确定</div>
@@ -57,7 +64,8 @@
 
 <script lang="ts">
   import { Component, Vue } from 'vue-property-decorator'
-  import { Icon, Popup, Field, Picker, Stepper, Dialog, Empty } from 'vant'
+  import axios from 'axios'
+  import { Icon, Popup, Field, Picker, Stepper, Dialog, Empty, Uploader, Button } from 'vant'
   @Component({
     components: {
       [Icon.name]: Icon,
@@ -66,6 +74,8 @@
       [Picker.name]: Picker,
       [Stepper.name]: Stepper,
       [Empty.name]: Empty,
+      [Uploader.name]: Uploader,
+      [Button.name]: Button,
     }
   })
   export default class UploadCourse extends Vue {
@@ -88,9 +98,15 @@
     private id: number = null;
     private coachId: number = null;
     private courseIndex: number = null;
-
+    private fileName: string = '';
+    private file: object = null;
     protected created(): void {
       this.getCourseList();
+    }
+    private afterRead(file: any): void {
+      this.fileName = file.file.name;
+      this.file = file;
+      console.log(file);
     }
     private chooseModel(model: any, index: number): void {
       const { id, infos, stage, title, train_time} = this.modelObj[index];
@@ -145,70 +161,54 @@
       }
     }
     private async addSubmit(): Promise<any> {
-      const { popType, modelName, modelTitle, modelGood, modelContent, modelTime, modelIndex, modelId, teachingPlanId, id, coachId, courseIndex } = this;
-      const item = {
-        coachId: coachId,
-        id: id,
-        infos: modelContent,
-        sort: modelIndex,
-        stage: modelGood,
-        status: 1,
-        teachingMudleId: modelId,
-        teachingPlanId: teachingPlanId,
-        title: modelTitle,
-        trainTime: modelTime,
-      }
+      const { popType, modelName, modelTitle, modelGood, modelContent, modelTime, modelIndex, modelId, teachingPlanId, id, coachId, courseIndex, file } = this;
+      const data: any = new FormData();
+      data.append('coachId', coachId);
+      data.append('teachingPlanId', teachingPlanId);
+      data.append('file', file);
       this.$toast.loading();
-      if (modelName && modelTime && modelGood && modelTitle && modelContent) {
-        try {
-          if (popType === 0) { //新增
-            await this.$api({
-              url: '/teachingPlanInfo/addTeachingPlanInfo',
-              data: {
-                teachingPlanId: teachingPlanId,
-                teachingMudleId: modelId,
-                coachId: coachId,
-                title: modelTitle,
-                stage: modelGood,
-                infos: modelContent,
-                sort: modelIndex,
-                trainTime: modelTime,
-                status: 1
-              }
-            });
-            // for (const key in this.courseList) {
-            //   if (this.courseList[Number(key)].sort > modelIndex) {
-            //     this.courseList.splice(Number(key), 0, item);
-            //   } else {
-            //     this.courseList.splice(modelIndex, 0, item);
-            //     break
-            //   }
-            // }
-            this.getCourseList();
-            this.$toast('上传成功');
-          } else { //修改
-            await this.$api({
-              url: '/teachingPlanInfo/updateTeachingPlanInfo',
-              data: {
-                id: id,
-                teachingPlanId: teachingPlanId,
-                teachingMudleId: modelId,
-                coachId: coachId,
-                title: modelTitle,
-                stage: modelGood,
-                infos: modelContent,
-                sort: modelIndex,
-                trainTime: modelTime,
-                status: 1
-              }
-            });
-            this.courseList.splice(courseIndex, 1, item);
-            this.$toast('修改成功');
+      if (file) {
+        axios({
+          method: 'post',
+          url: '/api/teachingPlanInfo/addTeachingPlanInfo',
+          data,
+          headers: {
+            'Content-Type': 'multipart/form-data',
           }
-        } catch(error) {
+        })
+        .then((res) => {
+          console.log(res);
+        }).catch((error) => {
           this.$toast.fail(error);
-        }
-        this.clear();
+        });
+        // try {
+        //   if (popType === 0) { //新增
+        //     await this.$api({
+        //       url: '',
+        //       data,
+        //       form: false,
+        //       headers: {
+        //         'Content-Type': 'multipart/form-data'
+        //       }
+        //     });
+        //     this.getCourseList();
+        //     this.$toast('上传成功');
+        //   } else { //修改
+        //     await this.$api({
+        //       url: '/teachingPlanInfo/updateTeachingPlanInfo',
+        //       data: {
+        //         ...data,
+        //         id: id
+        //       },
+        //       form: false,
+        //       headers: {
+        //         'Content-Type': 'multipart/form-data'
+        //       }
+        //     });
+        //     this.courseList.splice(courseIndex, 1, {...data, id: id});
+        //     this.$toast('修改成功');
+        //   }
+        // }
       } else {
         this.$toast('请完善信息')
       }

@@ -55,7 +55,7 @@
         </van-cell>
       </van-form>
       <div class="submit">
-        <van-button round block type="info" @click="submitRes">保存</van-button>
+        <div class="btn" @click="submitRes">保存</div>
       </div>
       <van-popup v-model="showBirth" position="bottom">
         <van-datetime-picker
@@ -163,7 +163,6 @@
         await this.$api({
           url: '/beeagleUsers/updateUserInfo',
           form: false,
-          headers: 'json',
           data: {
             userid: this.$store.state.userid,
             uname: nickname,
@@ -197,7 +196,14 @@
     }
     .submit {
       padding: 50px 80px;
-      text-align: center;
+      .btn {
+        color: #fff;
+        line-height: 45px;
+        text-align: center;
+        background: center / cover;
+        border-radius: 30px;font-size: 14px;
+        background-image: url('./icon/图层 17@2x.png');
+      }
     }
   }
 </style>

@@ -208,7 +208,6 @@
                   coachId: coachid
                 },
                 form: false,
-                headers: 'json'
               });
             } else {
               this.$toast('请完善内容');
@@ -225,7 +224,6 @@
                 userid: this.$store.state.userid,
               },
               form: false,
-              headers: 'json'
             });
           }
           this.$toast.clear();
@@ -268,7 +266,6 @@
               courseId: this.courseId,
               sort: JSON.parse(this.list[this.listIndex].medias).length + 1
             },
-            headers: 'json',
             form: false,
           })
           this.$toast('上传成功');

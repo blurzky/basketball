@@ -38,7 +38,7 @@
   align-items: center;
   justify-content: center;
   transition: opacity .3s;
-  background-color: #00000085;
+  background-color: #000000ee;
   .arrow {
     top: 10px;
     right: 40px;
