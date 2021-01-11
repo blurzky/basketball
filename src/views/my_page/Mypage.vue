@@ -96,7 +96,6 @@
       name: '个人设置'
     }];
     protected created(): void {
-      this.$store.commit('saveUserid', 83);
       if (!this.$store.state.userid) {
         const url = encodeURIComponent(`${location.origin + location.pathname}`);
         window.location.href = `https://open.weixin.qq.com/connect/oauth2/authorize?appid=wx0e734c0a8f759921&redirect_uri=${url}&response_type=code&scope=snsapi_userinfo#wechat_redirect`;

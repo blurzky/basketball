@@ -28,7 +28,7 @@
       if (location.href.includes('code')) {
         const code = this.setQuery('code');
         try {
-          const { userid } = await this.$api({
+          const { userid, token } = await this.$api({
             url: '/beeagleUsers/findByGoid',
             data: {
               code,
@@ -38,6 +38,7 @@
           });
           this.$toast.success('登录成功')
           this.$store.commit('saveUserid', userid);
+          localStorage.setItem('token', token);
           this.$wxShare({
             title: '比高篮球',
             desc: '报名体验课',

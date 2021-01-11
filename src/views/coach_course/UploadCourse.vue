@@ -6,13 +6,16 @@
       </div>
       <van-empty v-if="courseList.length === 0" description="点击右上角添加" />
       <div v-if="courseShow" class="course_wrapper">
-        <div class="every_course" v-for="({infos, stage, title, trainTime}, index) in courseList" :key="index">
-          <div class="short_lable">教学标题：{{title}}</div>
-          <div class="short_lable">训练时长：{{trainTime}}</div>
-          <div class="short_lable">训练道具：{{stage}}</div>
-          <div>教学内容：{{infos}}</div>
-          <div class="modify_btn" @click="modifyCourse(index)">修改</div>
-          <div class="del_btn" @click="delCourse(index)">删除</div>
+        <div class="every_course" v-for="({url}, index) in courseList" :key="index">
+          <div class="content">
+            <span>文件 / 点击下载：</span>
+            <a :href="url" target="tempiframe">{{url}}</a>
+            <iframe name="tempiframe" style="display:none;"></iframe>
+          </div>
+          <div class="btns">
+            <div class="modify_btn" @click="modifyCourse(index)">修改</div>
+            <div class="del_btn" @click="delCourse(index)">删除</div>
+          </div>
         </div>
       </div>
     </div>
@@ -20,18 +23,6 @@
       <div class="add_box">
         <div class="title">{{popType === 0 ? '增加教案' : '修改教案'}}</div>
         <van-field v-model="teachingPlanId" label="教案编号" required readonly />
-        <!-- <van-field v-model="modelName" label="教案模板" placeholder="选择教案模板" readonly  @click="getModel" />
-        <van-field v-model="modelTitle" label="教学标题" placeholder="请输入标题" />
-        <van-field v-model="modelTime" label="教学时长" placeholder="请输入 例：15min" />
-        <van-field v-model="modelGood" label="训练道具" placeholder="请输入" />
-        <van-field
-          v-model="modelContent"
-          label="教学内容"
-          placeholder="请输入"
-          rows="3"
-          autosize
-          type="textarea"
-        /> -->
         <van-field v-model="fileName" required readonly>
           <template #label>
             <van-uploader accept=".doc,.docx,.DOC,.DOCX" :after-read="afterRead">
@@ -39,25 +30,11 @@
             </van-uploader>
           </template>
         </van-field>
-        <!-- <van-field label="序号">
-          <template #input>
-            <van-stepper v-model="modelIndex" min="0" integer />
-          </template>
-        </van-field> -->
         <div class="btns">
           <div class="cancel" @click="clear">取消</div>
           <div class="submit" @click="addSubmit">确定</div>
         </div>
       </div>
-    </van-popup>
-    <van-popup v-model="modelShow" position="bottom" style="height: 50%">
-      <van-picker
-        title="选择教案模板"
-        show-toolbar
-        :columns="modelList"
-        @confirm="chooseModel"
-        @cancel="modelShow = false"
-      />
     </van-popup>
   </div>
 </template>
@@ -65,14 +42,12 @@
 <script lang="ts">
   import { Component, Vue } from 'vue-property-decorator'
   import axios from 'axios'
-  import { Icon, Popup, Field, Picker, Stepper, Dialog, Empty, Uploader, Button } from 'vant'
+  import { Icon, Popup, Field, Dialog, Empty, Uploader, Button } from 'vant'
   @Component({
     components: {
       [Icon.name]: Icon,
       [Popup.name]: Popup,
       [Field.name]: Field,
-      [Picker.name]: Picker,
-      [Stepper.name]: Stepper,
       [Empty.name]: Empty,
       [Uploader.name]: Uploader,
       [Button.name]: Button,
@@ -80,20 +55,9 @@
   })
   export default class UploadCourse extends Vue {
     private courseList: any[] = [];
-    private choose: number = 0;
     private addShow: boolean = false;
     private popType: number = null;
-    private modelShow: boolean = false;
     private courseShow: boolean = false;
-    private modelList: any[] = [];
-    private modelObj: any[] = [];
-    private modelName: string = '';
-    private modelTitle: string = '';
-    private modelTime: string = '';
-    private modelGood: string = '';
-    private modelContent: string = '';
-    private modelIndex: number = 0;
-    private modelId: number = null;
     private teachingPlanId: number = null; 
     private id: number = null;
     private coachId: number = null;
@@ -106,16 +70,6 @@
     private afterRead(file: any): void {
       this.fileName = file.file.name;
       this.file = file.file;
-    }
-    private chooseModel(model: any, index: number): void {
-      const { id, infos, stage, title, train_time} = this.modelObj[index];
-      this.modelName = title;
-      this.modelTitle = title;
-      this.modelGood = stage;
-      this.modelContent = infos;
-      this.modelTime = train_time;
-      this.modelId = id;
-      this.modelShow = false;
     }
     private async getCourseList(): Promise<any> {
       this.courseList = [];
@@ -141,96 +95,51 @@
         this.$toast.fail(error);
       }
     }
-    private async getModel(): Promise<any> {
-      this.modelList = [];
-      this.$toast.loading();
-      try {
-        const obj = await this.$api({
-          url: '/teachingMudle/getTeachingMudle',
-          method: 'get'
-        });
-        this.modelObj = obj;
-        obj.forEach((e: any) => {
-          this.modelList.push(e.title);
-        });
-        this.$toast.clear();
-        this.modelShow = true;
-      } catch(error) {
-        this.$toast.fail(error);
-      }
-    }
     private async addSubmit(): Promise<any> {
-      const { popType, modelName, modelTitle, modelGood, modelContent, modelTime, modelIndex, modelId, teachingPlanId, id, coachId, courseIndex, file } = this;
+      const { popType, teachingPlanId, id, coachId, file, courseIndex } = this;
       const data: any = new FormData();
       data.append('coachId', coachId);
       data.append('teachingPlanId', teachingPlanId);
       data.append('file', file);
+      if (popType === 1) {
+        data.append('id', id);
+      }
       this.$toast.loading();
       if (file) {
         axios({
           method: 'post',
-          url: '/api/teachingPlanInfo/addTeachingPlanInfo',
+          url: popType === 0 ? '/api/teachingPlanInfo/addTeachingPlanInfo' : '/api/teachingPlanInfo/updateTeachingPlanInfo',
           data,
           headers: {
             'Content-Type': 'multipart/form-data',
           }
         })
-        .then((res) => {
-          console.log(res);
+        .then((res: any) => {
+          if (popType === 0) {
+            this.clear();
+            this.$toast('上传成功');
+            this.courseList.push(res);
+          } else {
+            this.clear();
+            this.$toast('修改成功');
+            this.courseList[courseIndex].url = res.url;
+          }
         }).catch((error) => {
           this.$toast.fail(error);
         });
-        // try {
-        //   if (popType === 0) { //新增
-        //     await this.$api({
-        //       url: '',
-        //       data,
-        //       form: false,
-        //       headers: {
-        //         'Content-Type': 'multipart/form-data'
-        //       }
-        //     });
-        //     this.getCourseList();
-        //     this.$toast('上传成功');
-        //   } else { //修改
-        //     await this.$api({
-        //       url: '/teachingPlanInfo/updateTeachingPlanInfo',
-        //       data: {
-        //         ...data,
-        //         id: id
-        //       },
-        //       form: false,
-        //       headers: {
-        //         'Content-Type': 'multipart/form-data'
-        //       }
-        //     });
-        //     this.courseList.splice(courseIndex, 1, {...data, id: id});
-        //     this.$toast('修改成功');
-        //   }
-        // }
       } else {
-        this.$toast('请完善信息')
+        this.$toast('请完善信息');
       }
     }
     private clear(): void {
       this.addShow = false;
-      this.modelName = '';
-      this.modelTitle = '';
-      this.modelTime = '';
-      this.modelGood = '';
-      this.modelContent = '';
-      this.modelIndex = 0;
+      this.file = null;
+      this.fileName = null;
     }
     private async modifyCourse(index: number): Promise<any> {
       this.courseIndex = index;
       this.popType = 1;
-      const { id, infos, stage, title, trainTime, teachingMudleId, sort } = this.courseList[index];
-      this.modelName = this.modelTitle = title;
-      this.modelGood = stage;
-      this.modelContent = infos;
-      this.modelTime = trainTime;
-      this.modelId= teachingMudleId;
-      this.modelIndex = sort;
+      const { id, teachingMudleId } = this.courseList[index];
       this.id = id;
       this.addShow = true;
     }
@@ -281,25 +190,25 @@
       margin-bottom: 8px;
       background-color: #fff;
       box-shadow: 3px 3px 3px #cccccc;
-      .short_lable {
-        max-width: 200px;
-        margin-bottom: 3px;
+      .content {
+        line-height: 20px;
       }
-      .modify_btn, .del_btn {
-        top: 5px;
-        right: 55px;
-        width: 40px;
-        color: #fff;
-        line-height: 25px;
-        border-radius: 5px;
-        text-align: center;
-        position: absolute;
-        background-color: #54cc49;
-      }
-      .del_btn {
-        top: 5px;
-        right: 5px;
-        background-color: #d4352f;
+      .btns {
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+        .modify_btn, .del_btn {
+          width: 40px;
+          color: #fff;
+          line-height: 25px;
+          border-radius: 5px;
+          text-align: center;
+          background-color: #54cc49;
+        }
+        .del_btn {
+          margin-left: 20px;
+          background-color: #d4352f;
+        }
       }
     }
   }
