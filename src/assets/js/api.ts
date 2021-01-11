@@ -9,13 +9,13 @@ const bigao: any = axios.create({
 });
 
 // 接口定义 axios二次封装
-async function api({url, data, form = true, method = 'post',  headers, validateStatus = true}: ApiQuery): Promise<any> {
+async function api({url, data, form = true, method = 'post', validateStatus = true}: ApiQuery): Promise<any> {
   try {
     const {data: result, status}: Response = await bigao({
       url,
       data,
       method,
-      headers: headers ? headers : form ? {'Content-Type': 'application/x-www-form-urlencoded'} : {'Content-Type': 'application/json'},
+      headers: form ? {'Content-Type': 'application/x-www-form-urlencoded'} : {'Content-Type': 'application/json'},
       transformRequest: form ? [() => {
         let str = '';
         for (let key in data) {
