@@ -4,7 +4,7 @@ const bigao: any = axios.create({
   baseURL: '/api',
   timeout: 90000,
   headers: {
-    'Authorization' : localStorage.getItem('token') || ''
+    'BiGaoAuthorization' : localStorage.getItem('token') || ''
   }
 });
 

@@ -2,19 +2,19 @@
   <div>
     <div v-if="userinfo" class="page">
       <van-swipe :autoplay="3000">
-        <van-swipe-item v-for="(image, index) in images" :key="index">
+        <van-swipe-item v-for="(image, index) in banner" :key="index">
           <img class="swipe_img" v-lazy="image" />
         </van-swipe-item>
       </van-swipe>
       <div class="top">
         <div class="info">
-          <img :src="userinfo.head">
+          <img :src="userinfo.head" @click="$router.push(`/fill_mine?uname=${userinfo.uname || ''}&tel=${userinfo.tel || ''}&rname=${userinfo.rname || ''}&sex=${userinfo.childSex || ''}&grade=${userinfo.gradeClass || ''}&birthday=${userinfo.birthday || ''}`)">
           <div class="name">
             <div class="label">{{userinfo.uname}}</div>
             <div v-if="addrGroup.addr" class="label">校区:{{addrGroup.addr}}</div>
             <div v-if="addrGroup.groupName" class="label">组别:{{addrGroup.groupName}}</div>
           </div>
-          <img class="set_img" src="./icon/椭圆 1 拷贝@2x.png">
+          <img class="set_img" :src="logo">
         </div>
         <div class="vip">
           <div class="vip_icon">V</div>
@@ -69,10 +69,8 @@
     private overTime: string = null;
     private userinfo: any = null;
     private addrGroup: any = null;
-    private images: any[] = [
-      'https://img.yzcdn.cn/vant/apple-1.jpg',
-      'https://img.yzcdn.cn/vant/apple-2.jpg',
-    ];
+    private banner: any[] = [];
+    private logo: string = '';
     private cells: any[] = [{
       img: require('./icon/组 6@2x.png'),
       name: '自主选课'
@@ -91,9 +89,6 @@
     }, {
       img: require('./icon/组 9@2x.png'),
       name: '留言板'
-    }, {
-      img: require('./icon/set.png'),
-      name: '个人设置'
     }];
     protected created(): void {
       if (!this.$store.state.userid) {
@@ -105,7 +100,7 @@
     }
     private async getInfo(): Promise<any> {
       try {
-        const { beeagleUsers, buySum, remaSum, vipOutTime, addr, groupName } = await this.$api({
+        const { beeagleUsers, buySum, remaSum, vipOutTime, addr, groupName, banner, logo } = await this.$api({
           url: `/courseRema/findById?userid=${this.$store.state.userid}`,
           method: 'get',
         })
@@ -115,6 +110,8 @@
         this.formatOverTime(vipOutTime);
         this.classList.push(remaSum, buySum - remaSum);
         this.userinfo = beeagleUsers;
+        this.banner = banner;
+        this.logo = logo;
         this.addrGroup = {
           addr: addr,
           groupName: groupName
@@ -139,9 +136,6 @@
         this.$router.push(`/comment?role=1`);
       } else if (index === 4) {
         this.isShow = true;
-      } else if (index === 6) {
-        const { uname, tel, rname, childSex, birthday, gradeClass } = this.userinfo;
-        this.$router.push(`/fill_mine?uname=${uname ? uname : ''}&tel=${tel ? tel : ''}&rname=${rname ? rname : ''}&sex=${childSex ? childSex : ''}&grade=${gradeClass ? gradeClass : ''}&birthday=${birthday ? birthday : ''}`);
       } else {
         this.$toast('功能开发中');
       }
