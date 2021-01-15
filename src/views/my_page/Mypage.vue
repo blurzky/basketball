@@ -2,8 +2,8 @@
   <div>
     <div v-if="userinfo" class="page">
       <van-swipe :autoplay="3000">
-        <van-swipe-item v-for="(image, index) in banner" :key="index">
-          <img class="swipe_img" v-lazy="image" />
+        <van-swipe-item v-for="({img, url}, index) in banner" :key="index">
+          <img class="swipe_img" v-lazy="img" @click="goPage(url)" />
         </van-swipe-item>
       </van-swipe>
       <div class="top">
@@ -19,7 +19,7 @@
         <div class="vip">
           <div class="vip_icon">V</div>
           <span class="time">有效期至 {{overTime}}</span>
-          <span class="name">比高会员</span>
+          <span class="name">{{vipName}}</span>
         </div>
       </div>
       <div class="my_class">
@@ -37,11 +37,11 @@
         </div>
       </div>
       <div class="end_title">
-        <a href="">
-          <span style="margin-right: 30px" @click="$toast('功能开发中')">客户须知</span>
+        <a href="https://mp.weixin.qq.com/s/pKh6LAX35JgDsdtRmpAkMA" style="margin-right: 30px">
+          客户须知
         </a>
          <a href="tel: 13540497299">
-           <span>联系客服</span>
+          联系客服
          </a>
       </div>
     </div>
@@ -71,6 +71,7 @@
     private addrGroup: any = null;
     private banner: any[] = [];
     private logo: string = '';
+    private vipName: string = '';
     private cells: any[] = [{
       img: require('./icon/组 6@2x.png'),
       name: '自主选课'
@@ -100,27 +101,29 @@
     }
     private async getInfo(): Promise<any> {
       try {
-        const { beeagleUsers, buySum, remaSum, vipOutTime, addr, groupName, banner, logo } = await this.$api({
+        const { beeagleUsers, buySum, remaSum, vipOutTime, addr, groupName, banner, logo, vipName } = await this.$api({
           url: `/courseRema/findById?userid=${this.$store.state.userid}`,
           method: 'get',
         })
         if (beeagleUsers.role > 1) {
           this.$router.replace('/worker_page');
+        } else {
+          this.formatOverTime(vipOutTime);
+          this.classList.push(remaSum, buySum - remaSum);
+          this.userinfo = beeagleUsers;
+          this.banner = banner;
+          this.logo = logo;
+          this.vipName = vipName;
+          this.addrGroup = {
+            addr: addr,
+            groupName: groupName
+          };
+          if ((this.userinfo as any).birthday) {
+            const e: any = new Date((this.userinfo as any).birthday);
+            (this.userinfo as any).birthday = `${e.getFullYear()}-${e.getMonth() < 9 ? `0` : ``}${e.getMonth() + 1}-${e.getDate() < 10 ? `0` : ``}${e.getDate()}`
+          }
+          this.$store.commit('setLoadingStatus', false);
         }
-        this.formatOverTime(vipOutTime);
-        this.classList.push(remaSum, buySum - remaSum);
-        this.userinfo = beeagleUsers;
-        this.banner = banner;
-        this.logo = logo;
-        this.addrGroup = {
-          addr: addr,
-          groupName: groupName
-        };
-        if ((this.userinfo as any).birthday) {
-          const e: any = new Date((this.userinfo as any).birthday);
-          (this.userinfo as any).birthday = `${e.getFullYear()}-${e.getMonth() < 9 ? `0` : ``}${e.getMonth() + 1}-${e.getDate() < 10 ? `0` : ``}${e.getDate()}`
-        }
-        this.$store.commit('setLoadingStatus', false);
       } catch (error) {
         this.$toast.fail(`${error}`);
       }
@@ -134,10 +137,19 @@
         this.$router.push(`/mymall?owner=${this.userinfo.owner}&birthday=${this.userinfo.birthday}`);
       } else if (index === 2) {
         this.$router.push(`/comment?role=1`);
+      } else if (index === 3) {
+        window.location.href = 'https://mp.weixin.qq.com/s/f3Hcb7w3J1TVdDn_16CXlw';
       } else if (index === 4) {
         this.isShow = true;
+      } else if (index === 5) {
+        window.location.href = 'https://jinshuju.net/f/BCJLau';
       } else {
         this.$toast('功能开发中');
+      }
+    }
+    private goPage(url: string): void {
+      if (url) {
+        window.open(url, '_self');
       }
     }
   }

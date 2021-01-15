@@ -9,8 +9,7 @@
         <div class="every_course" v-for="({url}, index) in courseList" :key="index">
           <div class="content">
             <span>文件 / 点击下载：</span>
-            <a :href="url" target="tempiframe">{{url}}</a>
-            <iframe name="tempiframe" style="display:none;"></iframe>
+            <span @click="download(url)" class="download_link">{{url}}</span>
           </div>
           <div class="btns">
             <div class="modify_btn" @click="modifyCourse(index)">修改</div>
@@ -25,7 +24,7 @@
         <van-field v-model="teachingPlanId" label="教案编号" required readonly />
         <van-field v-model="fileName" required readonly>
           <template #label>
-            <van-uploader accept=".doc,.docx,.DOC,.DOCX" :after-read="afterRead">
+            <van-uploader accept=".doc,.docx,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document" :after-read="afterRead">
               <van-button icon="plus" type="info" size="mini">上传文件</van-button>
             </van-uploader>
           </template>
@@ -115,14 +114,15 @@
           }
         })
         .then((res: any) => {
+          const obj = res.data;
           if (popType === 0) {
             this.clear();
             this.$toast('上传成功');
-            this.courseList.push(res);
+            this.courseList.push(obj);
           } else {
             this.clear();
             this.$toast('修改成功');
-            this.courseList[courseIndex].url = res.url;
+            this.courseList[courseIndex].url = obj.url;
           }
         }).catch((error) => {
           this.$toast.fail(error);
@@ -166,6 +166,9 @@
       .catch(() => {
       });
     }
+    private download(url: string): void {
+      window.open(url, '_self');
+    }
   }
 </script>
 
@@ -192,6 +195,9 @@
       box-shadow: 3px 3px 3px #cccccc;
       .content {
         line-height: 20px;
+      }
+      .download_link {
+        text-decoration: underline;
       }
       .btns {
         display: flex;

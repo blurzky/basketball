@@ -26,11 +26,9 @@
         </div>
         <van-collapse v-if="list.length" v-model="fold">
           <van-collapse-item title="教学内容" :name="index">
-            <div v-for="({infos, stage, title, trainTime}, index) in list" :key="index" class="every_corse" :style="index !== 0 ? 'paddingTop: 0' : ''">
-              <div class="short_lable">教学标题：{{title}}</div>
-              <div class="short_lable">训练时长：{{trainTime}}</div>
-              <div class="short_lable">训练道具：{{stage}}</div>
-              <div>教学内容：{{infos}}</div>
+            <div v-for="({url}, index) in list" :key="index" class="every_corse">
+              <div>文件 / 点击下载：</div>
+              <span @click="download(url)" class="download_link">{{url}}</span>
               <div class="sort">{{index + 1}}</div>
             </div>
           </van-collapse-item>
@@ -164,6 +162,9 @@
         this.$toast.fail(error);
       }
     }
+    private download(url: string): void {
+      window.open(url, '_self');
+    }
   }
 </script>
 
@@ -248,13 +249,15 @@
       }
     }
     .every_corse {
-      padding: 8px;
       font-size: 12px;
       color: #666666;
+      line-height: 16px;
       position: relative;
+      word-break: break-all;
+      padding: 20px 8px 8px 8px;
       background-color: #f3f3f3;
-      .short_lable {
-        margin-bottom: 5px;
+      .download_link {
+        text-decoration: underline;
       }
       .sort {
         top: 0;
