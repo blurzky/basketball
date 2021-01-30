@@ -169,6 +169,15 @@ const routes: Array<RouteConfig> = [
     component: () => import('../views/my_page/my_qr/MyQr.vue')
   },
   {
+    path: '/coach_check',
+    name: 'coach_check',
+    meta: {
+      index: 0,
+      title: '教练评价-审核'
+    },
+    component: () => import('../views/my_page/coach_check/CoachCheck.vue')
+  },
+  {
     path: '/*',
     name: 'NotFind',
     meta: {

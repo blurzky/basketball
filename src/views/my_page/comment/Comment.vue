@@ -3,7 +3,7 @@
     <div class="page">
       <van-tabs v-model="tab" sticky color="#73a2f8" line-width="20" @change="changeTab">
         <van-tab v-for="(item, index) in tabs" :key="index" :title="item" :style="{padding: `.1px 12px 20px 12px`}">
-          <div  v-show="list.length" class="box" v-for="({ remark, coach_id, id, coachCommentId, addr, coachComment, coachDisGrade, coachStudyGrade, coach_name, time, etime, medias, userStudyGrade, userDisGrade, userCourseGrade, week}, index) in list" :key="index">
+          <div  v-show="list.length" class="box" v-for="({ remark, coach_id, id, coachCommentId, addr, coachComment, coachDisGrade, coachStudyGrade, coach_name, time, etime, medias, userStudyGrade, userDisGrade, userCourseGrade, week, uname}, index) in list" :key="index">
             <div class="wrapper">
               <div class="label">上课时间:</div>
               <span>{{time}}-{{etime.substr(11, 5)}}</span>
@@ -20,6 +20,11 @@
               <div class="addr">{{addr}}</div>
             </div>
             <div class="devision"></div>
+            <div class="devision"></div>
+            <div class="wrapper">
+              <div class="label">学员姓名:</div>
+              <span>{{uname}}</span>
+            </div>
             <div class="wrapper">
               <div class="label">纪律得分:</div>
               <div v-if="coachDisGrade !== null" class="addr">{{coachDisGrade}}分</div>

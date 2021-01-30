@@ -49,7 +49,7 @@
           <template #right-icon>
             <van-radio-group v-model="sex" class="sex">
               <van-radio name="1" style="marginRight: 20px">男</van-radio>
-              <van-radio name="0">女</van-radio>
+              <van-radio name="2">女</van-radio>
             </van-radio-group>
           </template>
         </van-cell>

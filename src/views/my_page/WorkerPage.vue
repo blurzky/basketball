@@ -28,6 +28,7 @@
       <van-cell v-if="menus.includes(7)" class="cell" title="VIP二维码" icon="scan" @click="$router.push(`/qr`)" />
       <van-cell v-if="menus.includes(8)" class="cell" title="我的二维码" icon="scan" @click="$router.push(`/my_qr`)" />
       <van-cell v-if="menus.includes(9)" class="cell" title="自主选课-审核" icon="label-o" @click="$router.push(`/check_mall?rectorId=${rectorId}`)" />
+      <van-cell v-if="menus.includes(10)" class="cell" title="教练评价-审核" icon="label-o" @click="$router.push(`/coach_check?rectorId=${rectorId}`)" />
     </div>
   </div>
 </template>

@@ -5,9 +5,21 @@
         <div class="name_box">
           <van-field v-model="name" :readonly="!fromHome" class="input" label="姓名" :placeholder="fromHome ? '请输入' : ''" @input="getName" />
           <div v-if="nameShow" class="thinking_box">
-            <van-cell :value="rname" :border="false" v-for="({rname, tel, uname, userid}, index) in nameList" :key="index" @click="chooseName(tel, uname, userid)" />
+            <van-cell :value="rname" :border="false" v-for="({rname, tel, uname, userid, birthday, child_sex}, index) in nameList" :key="index" @click="chooseName(tel, uname, userid, birthday, child_sex)" />
           </div>
         </div>
+        <van-field
+          v-model="tel"
+          required
+          clearable
+          class="input"
+          type="tel"
+          maxlength="11"
+          label="电话号码"
+          right-icon="phone-o"
+          placeholder="请输入电话号码"
+          :rules="[{ pattern: /^1[3456789]\d{9}$/, message: '手机号格式不正确' }]"
+        />
         <van-field v-model="birthday" readonly class="input" label="出生年月日" :placeholder="fromHome ? '请选择出生日期' : ''" right-icon="calender-o" @click="chooseBirth" />
         <van-field v-model="sex" readonly required class="input" label="性别" placeholder="请选择性别" @click="showPicks(1)" />
         <van-field v-model="startDay" readonly required class="input" label="开始日期" placeholder="年-月-日" right-icon="calender-o" @click="showStartDay = true" />
@@ -28,18 +40,6 @@
         <van-field v-model="payWay" readonly required label="缴费性质" class="input" placeholder="请选择缴费性质" @click="fromHome ? showPicks(4) : null"/>
         <van-field v-model="introUser" readonly label="转介绍顾客" class="input" placeholder="请选择介绍的老顾客" @click="payWayId === 4 ? getIntroUser() : fromHome ? $toast('非老客转介绍') : null"/>
         <van-field v-model="presentClass" readonly class="input" label="获赠课程" placeholder="请填写老客获得赠送课程(节)" />
-        <van-field
-          v-model="tel"
-          required
-          clearable
-          class="input"
-          type="tel"
-          maxlength="11"
-          label="电话号码"
-          right-icon="phone-o"
-          placeholder="请输入电话号码"
-          :rules="[{ pattern: /^1[3456789]\d{9}$/, message: '手机号格式不正确' }]"
-        />
         <van-field v-model="equipment" readonly required class="input" label="装备性质" placeholder="请选择装备性质" @click="showPicks(3)" />
         <van-field v-model="notice" clearable class="input" type="textarea" :autosize="true" maxlength="150" label="备注" placeholder="请输入备注" />
         <van-field v-model="getMoneyPerson" readonly class="input" label="收款人" placeholder="请选择收款人" @click="showPicks(6)" />
@@ -393,10 +393,20 @@
         this.nameList = null;
       }
     }
-    private chooseName(tel: string, name: string, userid: string): void {
+    private chooseName(tel: string, name: string, userid: string, birthday: any, child_sex: number): void {
       this.name = name;
       this.tel = tel;
       this.userid = userid;
+      if (birthday) {
+        const e = new Date(birthday);
+        this.currentBirthDate = e;
+        this.birthday = `${e.getFullYear()}-${e.getMonth() < 9 ? `0` : ``}${e.getMonth() + 1}-${e.getDate() < 10 ? `0` : ``}${e.getDate()}`;
+      }
+      if (child_sex === 1) {
+        this.sex = '男';
+      } else if (child_sex === 2) {
+        this.sex = '女';
+      }
       this.nameShow = false;
     }
   }
