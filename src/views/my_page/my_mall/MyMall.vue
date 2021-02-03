@@ -40,7 +40,13 @@
     </div>
     <van-popup v-model="showPickClass" class="check_popup" position="bottom" :style="{ height: '70%' }">
       <van-checkbox-group v-model="myChooseClass">
-        <van-checkbox v-for="(item, index) in classesList" :key="index" :name="index" class="check_box">{{item}}</van-checkbox>
+        <van-checkbox v-for="({info, list}, index) in classesList" :key="index" :name="index" class="check_box">
+          <div>{{info}}</div>
+          <div v-if="list.length">
+            <span>已选课学员:</span>
+            <span v-for="(item, index) in list" :key="index" style="margin-left:5px">{{item}}</span>
+          </div>
+        </van-checkbox>
       </van-checkbox-group>
       <div class="choose_btn">
         <van-button type="info" round size="small" :style="{width: `80px`}" @click="submitClass">确认</van-button>
@@ -116,7 +122,10 @@
           method: 'get'
         });
         obj.forEach((e: any) => {
-          this.classesList.push(`${e.addr} 【${e.week} ${e.startTime}-${e.endTime}】 组别:${e.groupName} 剩余:${e.allowpeples}\n`);
+          this.classesList.push({
+            info: `${e.addr} 【${e.week} ${e.startTime}-${e.endTime}】 组别:${e.groupName} 剩余:${e.allowpeples}`,
+            list: e.list
+          });
           this.classIdList.push(e.id);
         })
         this.$toast.clear();

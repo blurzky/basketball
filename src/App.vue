@@ -50,8 +50,8 @@
           this.$toast(`${error || '登录失败，请稍后重试'}`);
         }
       } else {
-        this.$store.commit('saveUserid', 86);
-        localStorage.setItem('token', 'WFWaBYYmValouEkw+5EfG8pp6WbU23EV');
+        // this.$store.commit('saveUserid', 83);
+        // localStorage.setItem('token', 'WFWaBYYmValouEkw+5EfG8pp6WbU23EV');
         this.status = true;
       }
     }
