@@ -10,9 +10,15 @@
         <div class="info">
           <img :src="userinfo.head" @click="$router.push(`/fill_mine?uname=${userinfo.uname || ''}&tel=${userinfo.tel || ''}&rname=${userinfo.rname || ''}&sex=${userinfo.childSex || ''}&grade=${userinfo.gradeClass || ''}&birthday=${userinfo.birthday || ''}`)">
           <div class="name">
-            <div class="label">{{userinfo.uname}}</div>
+            <div class="label">
+              <span>{{userinfo.rname}}</span>
+              <span v-if="addrGroup.groupName">{{addrGroup.groupName}}</span>
+            </div>
+            <div class="label">
+              <span>级别:</span>
+              <div class="star" v-for="item in $store.state.star" :key="item"></div>
+            </div>
             <div v-if="addrGroup.addr" class="label">校区:{{addrGroup.addr}}</div>
-            <div v-if="addrGroup.groupName" class="label">组别:{{addrGroup.groupName}}</div>
           </div>
           <img class="set_img" :src="logo">
         </div>
@@ -136,7 +142,7 @@
       if (index === 0) {
         this.$router.push(`/mymall?owner=${this.userinfo.owner}&birthday=${this.userinfo.birthday}`);
       } else if (index === 2) {
-        this.$router.push(`/comment?role=1`);
+        this.$router.push(`/user_comment`);
       } else if (index === 3) {
         window.location.href = 'https://mp.weixin.qq.com/s/f3Hcb7w3J1TVdDn_16CXlw';
       } else if (index === 4) {
@@ -181,10 +187,24 @@
         .name {
           flex: 1;
           color: #fff;
-          margin: 0 20px;
-          font-size: 13px;
+          font-size: vw(13);
+          margin-left: vw(10);
           .label {
+            display: flex;
             line-height: 20px;
+            align-items: center;
+            justify-content: flex-start;
+            &>span {
+              margin-right: 15px;
+            }
+            .star {
+              width: vw(15);
+              height: vw(15);
+              text-align: center;
+              background-size: 100%;
+              background-repeat: no-repeat;
+              background-image: url('./icon/star.png');
+            }
           }
         }
         .set_img {

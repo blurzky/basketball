@@ -28,7 +28,7 @@
       if (location.href.includes('code')) {
         const code = this.setQuery('code');
         try {
-          const { userid, token } = await this.$api({
+          const { userid, token, star } = await this.$api({
             url: '/beeagleUsers/findByGoid',
             data: {
               code,
@@ -38,6 +38,7 @@
           });
           this.$toast.success('登录成功')
           this.$store.commit('saveUserid', userid);
+          this.$store.commit('saveStar', star);
           localStorage.setItem('token', token);
           this.$wxShare({
             title: '比高篮球',
@@ -50,7 +51,7 @@
           this.$toast(`${error || '登录失败，请稍后重试'}`);
         }
       } else {
-        // this.$store.commit('saveUserid', 83);
+        // this.$store.commit('saveUserid', 86);
         // localStorage.setItem('token', 'WFWaBYYmValouEkw+5EfG8pp6WbU23EV');
         this.status = true;
       }

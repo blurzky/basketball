@@ -52,13 +52,22 @@ const routes: Array<RouteConfig> = [
     component: () => import('../views/my_page/WorkerPage.vue')
   },
   {
-    path: '/comment',
-    name: 'Comment',
+    path: '/worker_comment',
+    name: 'WorkerComment',
     meta: {
       index: 0,
       title: '课后总结与评语'
     },
-    component: () => import('../views/my_page/comment/Comment.vue')
+    component: () => import('../views/my_page/comment/WorkerComment.vue')
+  },
+  {
+    path: '/user_comment',
+    name: 'UserComment',
+    meta: {
+      index: 0,
+      title: '课后总结与评语'
+    },
+    component: () => import('../views/my_page/comment/UserComment.vue')
   },
   {
     path: '/test_class',

@@ -23,8 +23,8 @@
       <van-cell v-if="menus.includes(2)" class="cell" title="审核教案" icon="notes-o" @click="$router.push(`/check_course`)" />
       <van-cell v-if="menus.includes(3)" class="cell" title="引流数据" icon="notes-o" @click="$router.push('/statistic')" />
       <van-cell v-if="menus.includes(4)" class="cell" title="缴费上报" icon="shopping-cart-o" @click="$router.push('/mall?home=11')" />
-      <van-cell v-if="menus.includes(5)" class="cell" title="课程打分" icon="good-job-o" @click="$router.push(`/comment?role=1}`)" />
-      <van-cell v-if="menus.includes(6)" class="cell" title="教练评语" icon="comment-o" @click="$router.push(`/comment?role=${userinfo.role}`)" />
+      <van-cell v-if="menus.includes(5)" class="cell" title="课程打分" icon="good-job-o" @click="$router.push(`/worker_comment`)" />
+      <van-cell v-if="menus.includes(6)" class="cell" title="教练评语" icon="comment-o" @click="$router.push(`/user_comment`)" />
       <van-cell v-if="menus.includes(7)" class="cell" title="VIP二维码" icon="scan" @click="$router.push(`/qr`)" />
       <van-cell v-if="menus.includes(8)" class="cell" title="我的二维码" icon="scan" @click="$router.push(`/my_qr`)" />
       <van-cell v-if="menus.includes(9)" class="cell" title="自主选课-审核" icon="label-o" @click="$router.push(`/check_mall?rectorId=${rectorId}`)" />
@@ -48,6 +48,7 @@
     private rectorId: number = null;
     private userinfo: object = {};
     private menus: string[] = [];
+    private role: number = null;
     protected created(): void {
       this.getInfo();
     }
@@ -63,6 +64,7 @@
         this.userinfo = worker;
         this.menus = menus;
         this.rectorId = beeagleUsers.sysUserId;
+        this.role = beeagleUsers.role;
         this.$store.commit('setLoadingStatus', false);
       } catch (error) {
         this.$toast.fail(`${error}`);

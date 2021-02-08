@@ -40,9 +40,6 @@
                 <img v-if="type === 1" class="pic" :src="media_url" />
                 <video v-else class="video" :src="media_url" />
               </div>
-              <div @click="savePic(id, index)">
-                <van-uploader v-if="role > 1 && JSON.parse(medias).length <= 4" class="upload" accept="image/*, video/*" preview-size="70px" :after-read="upLoadImg" />
-              </div>
             </div>
             <div class="devision"></div>
             <div :style="{border: `1px dashed #eeeeee`, borderRadius: `14px`, padding: `8px`}">
@@ -74,16 +71,16 @@
       </van-popup>
       <van-popup v-model="starShow" position="bottom" :style="{ height: '55%' }" @closed="closeStar">
         <div class="star_box">
-          <div v-if="role === 1" class="star_line">
+          <div class="star_line">
             <span class="label">课程评分</span>
             <van-rate v-model="gradeStar" :size="25" color="#ffd21e" void-icon="star" void-color="#eee" />
           </div>
           <div class="star_line">
-            <span class="label">{{role === 1 ? '学习内容评分' : '教学内容评分'}}</span>
+            <span class="label">学习内容评分</span>
             <van-rate v-model="coachDisStar" :size="25" color="#ffd21e" void-icon="star" void-color="#eee" />
           </div>
           <div class="star_line">
-            <span class="label">{{role === 1 ? '上课纪律评分' : '纪律评分'}}</span>
+            <span class="label">上课纪律评分</span>
             <van-rate v-model="coachStudyStar" :size="25" color="#ffd21e" void-icon="star" void-color="#eee" />
           </div>
           <div class="star_line">
@@ -102,7 +99,7 @@
 <script lang="ts">
   import axios from 'axios'
   import { Component, Vue } from 'vue-property-decorator'
-  import { Button, Popup, Rate, Field, Tab, Tabs, Uploader, Icon } from 'vant'
+  import { Button, Popup, Rate, Field, Tab, Tabs, Icon } from 'vant'
   @Component({
     components: {
       [Button.name]: Button,
@@ -111,12 +108,10 @@
       [Field.name]: Field,
       [Tab.name]: Tab,
       [Tabs.name]: Tabs,
-      [Uploader.name]: Uploader,
       [Icon.name]: Icon,
     }
   })
-  export default class Comment extends Vue {
-    private role: any = Number(this.$route.query.role);
+  export default class UserComment extends Vue {
     private courseId: number = null;
     private coachId: number = null;
     private coachid: number = null;
@@ -169,7 +164,7 @@
       }
       try {
         const obj = await this.$api({
-          url: this.role === 1 ? '/course/findUserEvalumentList' : '/course/findCoachCommentList',
+          url: '/course/findUserEvalumentList',
           data: {
             userid: this.$store.state.userid,
             page: this.page,
@@ -195,41 +190,26 @@
       }
     }
     private async submit(): Promise<any> {
-      const { role, comment, courseId, coachId, coachid, coachDisStar, coachStudyStar, gradeStar } = this;
+      const { comment, courseId, coachId, coachid, coachDisStar, coachStudyStar, gradeStar } = this;
       if (comment && coachDisStar && coachStudyStar) {
         try {
           this.$toast.loading();
-          if (role === 1) {
-            if (gradeStar) {
-              await this.$api({
-                url: '/evaluate/addEvaluate',
-                data: {
-                  remark: comment,
-                  courseId,
-                  disGrade: coachDisStar,
-                  studyGrade: coachStudyStar,
-                  courseGrade: gradeStar,
-                  userid: this.$store.state.userid,
-                  coachId: coachid
-                },
-                form: false,
-              });
-            } else {
-              this.$toast('请完善内容');
-            }
-          } else {
+          if (gradeStar) {
             await this.$api({
-              url: '/coachComment/updateCoachComment',
+              url: '/evaluate/addEvaluate',
               data: {
-                comment,
+                remark: comment,
                 courseId,
                 disGrade: coachDisStar,
-                id: coachId,
-                studysGrade: coachStudyStar,
+                studyGrade: coachStudyStar,
+                courseGrade: gradeStar,
                 userid: this.$store.state.userid,
+                coachId: coachid
               },
               form: false,
             });
+          } else {
+            this.$toast('请完善内容');
           }
           this.$toast.clear();
           this.starShow = false;
@@ -247,35 +227,6 @@
       this.coachStudyStar = null;
       this.comment = null;
       this.gradeStar = null;
-    }
-    private savePic(courseId: number, index: number): void {
-      this.courseId = courseId;
-      this.listIndex = index;
-    }
-    private  upLoadImg(e: any) {
-      const { file } = e;
-      if (file.size > 104857600) {
-        this.$toast('文件过大，上传失败');
-      } else {
-        this.$toast.loading();
-        const form = new FormData();
-        form.append('name', file.name);
-        form.append('file', file);
-        axios.post('/api/oss/AliyunOssUpload', form).then( async (res: any) => {
-          const { type, url } = res.data;
-          await this.$api({
-            url: '/courseMedia/addCourseMedia',
-            data: {
-              type,
-              mediaUrl: url,
-              courseId: this.courseId,
-              sort: JSON.parse(this.list[this.listIndex].medias).length + 1
-            },
-            form: false,
-          })
-          this.$toast('上传成功');
-        }).catch((error) => this.$toast(error));
-      }
     }
   }
 </script>
