@@ -15,8 +15,10 @@
               <span v-if="addrGroup.groupName">{{addrGroup.groupName}}</span>
             </div>
             <div class="label">
-              <span>级别:</span>
-              <div class="star" v-for="item in $store.state.star" :key="item"></div>
+              <span>星级:</span>
+              <div class="star_wrapper">
+                <div class="star" v-for="item in $store.state.star" :key="item"></div>
+              </div>
             </div>
             <div v-if="addrGroup.addr" class="label">校区:{{addrGroup.addr}}</div>
           </div>
@@ -79,22 +81,22 @@
     private logo: string = '';
     private vipName: string = '';
     private cells: any[] = [{
-      img: require('./icon/组 6@2x.png'),
+      img: require('./icon/6@2x.png'),
       name: '自主选课'
     }, {
-      img: require('./icon/组 5@2x.png'),
+      img: require('./icon/5@2x.png'),
       name: '课程表'
     }, {
-      img: require('./icon/组 4@2x.png'),
+      img: require('./icon/4@2x.png'),
       name: '课程打分'
     }, {
-      img: require('./icon/组 7@2x.png'),
+      img: require('./icon/7@2x.png'),
       name: '关于我们'
     }, {
-      img: require('./icon/组 8@2x.png'),
+      img: require('./icon/8@2x.png'),
       name: '分享训练营'
     }, {
-      img: require('./icon/组 9@2x.png'),
+      img: require('./icon/9@2x.png'),
       name: '留言板'
     }];
     protected created(): void {
@@ -197,13 +199,18 @@
             &>span {
               margin-right: 15px;
             }
-            .star {
-              width: vw(15);
-              height: vw(15);
-              text-align: center;
-              background-size: 100%;
-              background-repeat: no-repeat;
-              background-image: url('./icon/star.png');
+            .star_wrapper {
+              display: flex;
+              align-items: center;
+              justify-content: flex-start;
+              .star {
+                width: vw(15);
+                height: vw(15);
+                text-align: center;
+                background-size: 100%;
+                background-repeat: no-repeat;
+                background-image: url('./icon/star.png');
+              }
             }
           }
         }
@@ -287,7 +294,7 @@
       text-align: center;
       padding: 12px 0 3px 0;
       background: center / cover;
-      background-image: url('./icon/图层 20 拷贝 2@2x.png');
+      background-image: url('./icon/end2@2x.png');
       a:link {
         color: #000;
       }
