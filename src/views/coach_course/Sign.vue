@@ -14,11 +14,16 @@
         </div>
       </div>
     </div>
-    <van-popup v-model="addShow" round :close-on-click-overlay="false" style="height: 40%;width: 90%">
+    <van-popup v-model="addShow" round :close-on-click-overlay="false" style="height: 45%;width: 90%">
       <div class="add_box">
         <div class="title">新增上课学员</div>
         <van-field v-model="courseId" label="教案编号" readonly />
-        <van-field v-model="studentName" label="学员姓名" placeholder="选择学员姓名" readonly @click="getStudent" />
+        <div class="name_box" @click.stop>
+          <van-field v-model="studentName" label="学员姓名" placeholder="输入学员姓名" @input="reNewList" />
+          <div v-if="studentShow" class="thinking_box">
+            <van-cell :value="`${rname}【${uname}】`" :border="false" v-for="({rname, uname}, index) in studentList" :key="index" @click="chooseStudent(`${rname}【${uname}】`, index)" />
+          </div>
+        </div>
         <van-field
           v-model="notice"
           label="备注信息"
@@ -33,27 +38,19 @@
         </div>
       </div>
     </van-popup>
-    <van-popup v-model="studentShow" position="bottom" style="height: 50%">
-      <van-picker
-        title="选择学员"
-        show-toolbar
-        :columns="nameList"
-        @confirm="chooseStudent"
-        @cancel="studentShow = false"
-      />
-    </van-popup>
   </div>
 </template>
 
 <script lang="ts">
   import { Component, Vue } from 'vue-property-decorator'
-  import { Icon, Popup, Field, Picker, Dialog } from 'vant'
+  import { Icon, Popup, Field, Picker, Dialog, Cell } from 'vant'
   @Component({
     components: {
       [Icon.name]: Icon,
       [Popup.name]: Popup,
       [Field.name]: Field,
       [Picker.name]: Picker,
+      [Cell.name]: Cell,
     },
     filters: {
       setState(state: number) {
@@ -76,7 +73,7 @@
     private state: number = 0;
     private courseId: Number = null;
     private studentName: string = '';
-    private nameList: any[] = [];
+    private originList: any[] = [];
     private studentList: any[] = [];
     private studentIndex: number = null;
     private objList: any[] = [];
@@ -85,6 +82,7 @@
     protected created(): void {
       this.courseId = Number(this.$route.query.courseId);
       this.getList();
+      this.getStudent();
     }
     private async getList(): Promise<any> {
       if (!this.$store.state.loadingStatus) {
@@ -116,18 +114,13 @@
           url: `/courseStudent/findCourseStudens?courseId=${this.courseId}`,
           method: 'get'
         });
-        this.studentList = obj;
-        obj.forEach((e: any) => {
-          this.nameList.push(`${e.uname}【${e.rname}】`);
-        });
-        this.studentShow = true;
+        this.originList = obj;
         this.$toast.clear();
       } catch(error) {
         this.$toast.fail(error);
       }
     }
     private signCk(courseId: number, id: number, userid: string, index: number): void{
-      console.log(courseId, id, userid)
        Dialog.confirm({
         title: '签到',
         message: '是否确认签到',
@@ -151,7 +144,32 @@
       .catch(() => {
       });
     }
+    private reNewList(): void {
+      this.studentList = [];
+      if (this.studentName) {
+        this.originList.forEach((e) => {
+          if (e.uname.includes(this.studentName) || e.rname.includes(this.studentName)) {
+            if (this.studentList.length === 0) {
+              this.studentList.push(e);
+            } else {
+              this.studentList.forEach((student) => {
+                if (student.userid !== e.userid) {
+                  this.studentList.push(e);
+                }
+              });
+            }
+          }
+        });
+        if (this.studentList.length) {
+          this.studentShow = true;
+        }
+      } else {
+        this.studentList = [];
+        this.studentShow = false;
+      }
+    }
     private async addSubmit(): Promise<any> {
+      console.log(this.studentList);
       const {userid, uname} = this.studentList[this.studentIndex];
       this.$toast.loading();
       try {
@@ -231,6 +249,24 @@
   .title {
     font-size: 16px;
     font-weight: bold;
+  }
+  .name_box {
+    position: relative;
+    .thinking_box {
+      top: 44px;
+      left: 80px;
+      z-index: 99;
+      max-height: 140px;
+      overflow: hidden;
+      border-top: none;
+      overflow-y: scroll;
+      position: absolute;
+      box-sizing: border-box;
+      width: calc(100% - 80px);
+      border: 1px solid #d8d8d8;
+      background-color: #ffffff;
+      border-radius: 0 0 14px 14px;
+    }
   }
   .btns {
     display: flex;
