@@ -21,7 +21,7 @@
         <div class="name_box" @click.stop>
           <van-field v-model="studentName" label="学员姓名" placeholder="输入学员姓名" @input="reNewList" />
           <div v-if="studentShow" class="thinking_box">
-            <van-cell :value="`${rname}【${uname}】`" :border="false" v-for="({rname, uname}, index) in studentList" :key="index" @click="chooseStudent(`${rname}【${uname}】`, index)" />
+            <van-cell :value="`${rname}【${tel}】`" :border="false" v-for="({rname, tel}, index) in studentList" :key="index" @click="chooseStudent(`${rname}【${tel}】`, index)" />
           </div>
         </div>
         <van-field
@@ -148,20 +148,14 @@
       this.studentList = [];
       if (this.studentName) {
         this.originList.forEach((e) => {
-          if (e.uname.includes(this.studentName) || e.rname.includes(this.studentName)) {
-            if (this.studentList.length === 0) {
-              this.studentList.push(e);
-            } else {
-              this.studentList.forEach((student) => {
-                if (student.userid !== e.userid) {
-                  this.studentList.push(e);
-                }
-              });
-            }
+          if (e.rname.includes(this.studentName)) {
+            this.studentList.push(e);
           }
         });
         if (this.studentList.length) {
           this.studentShow = true;
+        } else {
+          this.studentShow = false;
         }
       } else {
         this.studentList = [];
@@ -183,6 +177,7 @@
             remark: this.notice
           }
         });
+        this.studentName = '';
         this.objList = [];
         this.getList();
         this.$toast('增加成功');
